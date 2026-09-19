@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "counts": {
+    "original_files": 154,
+    "rebuilt_files": 154,
+    "edited_files": 154,
+    "key_pointer_checks": 46752
+  },
+  "original_addresses": [
+    "00421fc0",
+    "006801c0",
+    "006802e0",
+    "006a79c0",
+    "006a76c0",
+    "006a7700",
+    "006a77d0",
+    "006a7810"
+  ],
+  "scope": "Original loader, time seek and key/time addresses under synthetic memory; no renderer, resource archive or live gameplay.",
+  "edited_case": "First scalar of first track +0.125 in each file; all other data retained."
+}
