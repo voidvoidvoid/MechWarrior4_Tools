@@ -1,0 +1,9 @@
+{
+  "source": "user-supplied mw4_extract.py",
+  "version": "1.0.0",
+  "source_sha256": "07e78315cb707b8ac22cce8587acfeaa11d354c7ee6201a83a1307522091d56f",
+  "bundled_copy": "io_scene_mw4anim/helm.py",
+  "modified": false,
+  "profile": "io_scene_mw4anim/crypto_profile.json",
+  "profile_material_check": "Uses the same pinned SHA-256 as KeySource; derived from previously supplied executable image"
+}
