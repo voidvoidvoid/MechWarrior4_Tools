@@ -1,0 +1,7 @@
+{
+  "blender": "5.1.0",
+  "events": [
+    "R6 -> R8 without restart: real @aulr0 texture still missing with old cached texture module",
+    "R10 upgrade in same session: actual texture resolves and decodes"
+  ]
+}
