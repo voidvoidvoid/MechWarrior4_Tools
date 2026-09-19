@@ -1,0 +1,16 @@
+{
+  "blender": "5.1.0",
+  "unchanged_erfs_byte_identical": 19,
+  "legacy_import_noop_byte_identical": true,
+  "pose_and_world_placement_excluded": true,
+  "edited_resource_isolation": true,
+  "lower_lod_bytes_preserved": true,
+  "bounds_enclose_all_lods": true,
+  "uv_edit_and_300_vertex_retopology_split": true,
+  "obb_edit_rejected": true,
+  "single_erf_and_package_operators": true,
+  "failed_export_preserves_destination": true,
+  "native_animation_export_still_byte_identical": true,
+  "save_reopen_geometry_stable": true,
+  "live_game_test": false
+}
