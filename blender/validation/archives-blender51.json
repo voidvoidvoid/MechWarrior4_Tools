@@ -1,0 +1,20 @@
+{
+  "blender": "5.1.0",
+  "fixture": "Synthetic VBD containers; supplied real hierarchy/154 clips; stand-in ERF payloads",
+  "bones": 41,
+  "actions": 154,
+  "collected_geometry_resources": 38,
+  "walk_byte_identical": true,
+  "tests": [
+    "raw/LZW/mektek/secure decoding",
+    "CRC corruption rejected",
+    "unreadable archive reported",
+    "unrelated resource-ID collision ignored",
+    "ambiguous geometry reference reported",
+    "resource bundle export and blend save/reopen",
+    "addon operator registration",
+    "read-only source tree"
+  ],
+  "real_game_installation_tested": false,
+  "ERF_mesh_decoding_tested": false
+}
