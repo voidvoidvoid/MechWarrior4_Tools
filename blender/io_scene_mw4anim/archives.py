@@ -174,13 +174,36 @@ class Catalog:
 
     def collect_animations(self, files, report):
         from . import animscript
+        script_refs = animscript.model_script_references(files)
+        script_index = {}
+        for row in self.rows:
+            if normalized(row['name']).endswith('.animscript'):
+                script_index.setdefault(animscript.resource_key(row['name']), []).append(row)
+        present = {animscript.resource_key(n) for n in files}
+        script_missing, script_errors, scripts_collected = [], [], []
+        for ref in script_refs:
+            key = animscript.resource_key(ref['path'])
+            if key in present: continue
+            try:
+                row = self.unique(script_index.get(key, []))
+                if row is None:
+                    script_missing.append(ref['path']); continue
+                data, method = self.read(row)
+                path = normalized(row['name']); helm.safe_parts(path)
+                files[path] = data; present.add(key); scripts_collected.append(path)
+                report['resources'].append(dict(self.describe(row), **method,
+                    sha256=hashlib.sha256(data).hexdigest(), bytes=len(data)))
+            except (OSError, ValueError) as exc:
+                script_errors.append(dict(ref, error=str(exc)))
         dependencies = animscript.inspect(files)
         index = {}
         for row in self.rows:
             if normalized(row['name']).endswith('.mw4anim'):
                 index.setdefault(animscript.resource_key(row['name']), []).append(row)
         existing = {animscript.resource_key(n) for n in files if n.endswith('.mw4anim')}
-        result = dict(preferred=dependencies['preferred'], missing=[], errors=dependencies['errors'], collected=[])
+        result = dict(preferred=dependencies['preferred'], missing=script_missing,
+            errors=script_errors + dependencies['errors'], collected=[],
+            script_references=script_refs, scripts_collected=scripts_collected)
         for name in dependencies['paths']:
             key = animscript.resource_key(name)
             if key in existing: continue
