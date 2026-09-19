@@ -1,0 +1,18 @@
+{
+  "blender": "5.1.0",
+  "real_erf_files": 38,
+  "lods": 190,
+  "byte_identical_actions": 154,
+  "vertex_pose_checks": 5568,
+  "max_vertex_error": 9.139745988244759e-06,
+  "tests": [
+    "strict version, bounds and end-of-file validation",
+    "evaluated vertices match independent native-transform reconstruction at four walk poses",
+    "R3 embedded-bundle upgrade and duplicate prevention",
+    "mesh/modifier/Action save and reopen"
+  ],
+  "bones": 41,
+  "mesh_objects": 26,
+  "vertices": 1392,
+  "triangles": 976
+}
