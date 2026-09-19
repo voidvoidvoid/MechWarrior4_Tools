@@ -1,0 +1,9 @@
+{
+  "blender": "5.1.0",
+  "events": [
+    "R8 enabled",
+    "R9 result: False",
+    "R10 enabled after failed R9 without process restart",
+    "Enabled reinstall, disable, re-enable passed"
+  ]
+}
