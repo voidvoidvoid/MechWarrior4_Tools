@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.blend
+*.blend1
+*.mw4
+*.mw4anim
+*.erf
+*.tga
+*.png
+*.exe
+*.dll
+*.zip
+!downloads/MW4-Blender-Animation-*.zip
