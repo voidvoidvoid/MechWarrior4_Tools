@@ -2,19 +2,20 @@
 
 Tools for inspecting and editing MechWarrior 4 resources.
 
-## Blender add-on — R14 (0.14.0)
+## Blender add-on — R15 (0.15.0)
 
-Import mech skeletons, supported polygon meshes, textures, and animations from a local MW4 installation into **Blender 5.1 or newer**. Preview and edit imported animations, then export native `.mw4anim` clips.
+Import mech skeletons, supported polygon meshes, textures, and animations from a local MW4 installation into **Blender 5.1 or newer**. Preview and edit imported animations, then export native `.mw4anim` clips and supported edited mech `.erf` parts.
 
 - **[Get the source ZIP](https://github.com/voidvoidvoid/MechWarrior4_Tools/archive/refs/heads/main.zip)**, extract it, then build the installer as described below.
 - **[Installation and complete user guide](blender/README.md)**
+- **[Native ERF geometry export guide](blender/docs/ERF-EXPORT.md)**
 - [Format research and support boundaries](blender/FORMAT.md)
 - [Multi-mech rig validation](blender/MULTI-MECH-REVIEW.md)
 - [Developer guide and tests](blender/docs/DEVELOPMENT.md)
 
 Build the add-on ZIP using the command below, then install it through Blender's **Edit → Preferences → Add-ons → Install from Disk**. Do not install GitHub's whole-repository **Code → Download ZIP** as a Blender add-on.
 
-Game assets are not included. Supply your own MW4 installation or previously exported resource bundle. The add-on reads game archives without modifying them. Export supports animations; it does not write game archives, mesh geometry, or textures.
+Game assets are not included. Supply your own MW4 installation or previously exported resource bundle. The add-on reads game archives without modifying them. Export supports native animations and replacement ERF geometry; it does not write game archives or texture images.
 
 ## Repository layout
 
