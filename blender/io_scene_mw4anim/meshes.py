@@ -76,12 +76,16 @@ def plans(files,report,info,include_cockpit=False):
                     if kind==0x21e:
                         if size<69:raise codec.FormatError('Truncated shape component')
                         edb,eid=struct.unpack_from('<HH',video,p+9)
-                        ename,edata=resource(eid,'.erf')
-                        transform=tuple(struct.unpack_from('<12f',video,p+21))
-                        if '_dam.' not in ename and (ename,transform) not in seen:
-                            decoded=erf.loads(edata)
-                            node_parts.append(dict(bone=bone,source=ename,component_matrix=transform,decoded=decoded))
-                            seen.add((ename,transform))
+                        try:
+                            ename,edata=resource(eid,'.erf')
+                            transform=tuple(struct.unpack_from('<12f',video,p+21))
+                            if '_dam.' not in ename and (ename,transform) not in seen:
+                                decoded=erf.loads(edata)
+                                node_parts.append(dict(bone=bone,source=ename,component_matrix=transform,decoded=decoded))
+                                seen.add((ename,transform))
+                        except (ValueError, struct.error) as exc:
+                            errors.append({'bone':bone, 'video':video_name,
+                                'component_offset':p, 'resource_id':eid, 'error':str(exc)})
                     p+=size
                 result.extend(node_parts)
             except (ValueError,struct.error) as exc:errors.append({'bone':bone,'error':str(exc)})
@@ -189,9 +193,11 @@ class MW4ANIM_OT_bundle_import(bpy.types.Operator):
                 try:
                     catalog = archives.Catalog(bpy.path.abspath(directory),
                         bpy.path.abspath(prefs.key_source) if prefs.key_source else '')
+                    catalog.collect_animations(files, report)
+                    report['animation_files'] = sorted(n for n in files if n.endswith('.mw4anim'))
                     textures.collect(catalog, files, report)
                 except (OSError, ValueError, RuntimeError) as exc:
-                    report.setdefault('warnings', []).append('Texture lookup: ' + str(exc))
+                    report.setdefault('warnings', []).append('Installation dependency lookup: ' + str(exc))
             obj,report=game_import.import_resource_files(files,report,context, game_directory=directory)
         except (ValueError,OSError,KeyError,zipfile.BadZipFile) as exc:
             self.report({'ERROR'},str(exc));return {'CANCELLED'}
