@@ -1,0 +1,26 @@
+{
+  "version": [
+    0,
+    14,
+    0
+  ],
+  "blender_versions": [
+    "5.1.0",
+    "5.2.0 LTS"
+  ],
+  "synthetic_checks": [
+    "external GameModel script dependency collection",
+    "missing and conflicting script diagnostics",
+    "valid torso triangle preserved when secondary ERF missing",
+    "valid torso shape preserved when secondary ERF malformed"
+  ],
+  "solitaire_core": {
+    "hierarchy_nodes": 39,
+    "script": "content/mechs/cougar/cougar.animscript",
+    "field_offset": 136,
+    "animation_clips": 0,
+    "animation_scripts": 0,
+    "erf_files": 0
+  },
+  "limitations": "No actual Solitaire polygon or donor animation playback validation; user missing-torso/head case requires its own diagnostics."
+}
