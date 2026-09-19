@@ -1,0 +1,9 @@
+{
+  "sample_archive_sha256": "b946f601a662c4f972c6763e66c4808990f7e284d202b8ef3d3a5a8d617f5688",
+  "test_command": "python tests/test_codec.py bushwacker.zip",
+  "unittest_methods_passed": 5,
+  "byte_identical_rebuilt_clips": 154,
+  "all_five_track_types_edited_and_reparsed": true,
+  "new_key_section_relocation": true,
+  "malformed_input_and_limits_rejected": true
+}
