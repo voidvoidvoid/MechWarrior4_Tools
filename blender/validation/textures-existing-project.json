@@ -1,0 +1,16 @@
+{
+  "blender": "5.1.0",
+  "ERF_references": [
+    "@abus0",
+    "@pilot",
+    "@team",
+    "RunningLight",
+    "cage1",
+    "isdash1"
+  ],
+  "existing_actions": 154,
+  "animation_unchanged": true,
+  "mesh_count": 26,
+  "texture_count": 4,
+  "test_images": "synthetic"
+}
