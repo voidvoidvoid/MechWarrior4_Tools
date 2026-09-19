@@ -326,3 +326,7 @@ Resource-bundle Text payloads now use base64 with 76-character lines to avoid qu
 The actual uploaded textures.mw4 has 13,223 declared members. Uller image names are textures/@aulr0.tga, textures/@pilot.tga, textures/@team.tga, textures/runninglight.tga, textures/cage1.tga, textures/cdash1.tga, with matching {hint} members. Hints respectively: 0x20900, 0x20141, 0x20141, 0x20141, 0x900, 0x20900. Actual image bytes load as TGA in Blender. @pilot/@team are identical transparent decal placeholders, so content-addressed image reuse is expected. Their alpha has surface-transparency meaning, unlike the body detail image's camouflage mask.
 
 Legacy Blender ZIP installs can reload __init__ while retaining dependency modules. This reproduced both the R9 missing-register_properties exception and R6 texture-path logic surviving an R8 update. R10 cleans prior RNA registrations and reloads only this add-on's modules in dependency order, then registers transactionally. Real archive and update-path test reports are in validation/.
+
+## R15 native geometry writer
+
+`erf_write.py` and `mesh_export.py` implement template-based export for supported existing mech parts. See [ERF-EXPORT.md](docs/ERF-EXPORT.md) for the source evidence, serialized fields, limits and tests. Earlier statements in this document that mesh export is absent describe earlier releases. Native `.mw4` archive writing and general `.ebf` authoring remain outside this implementation.
