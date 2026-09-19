@@ -72,3 +72,20 @@ def choose_action(actions, files):
         match=next((a for a in actions if a.get('mw4_archive_member','').casefold().endswith(suffix)),None)
         if match is not None:return match
     return None
+
+
+def model_script_references(files):
+    """Read explicit NUL-terminated script paths in binary GameModel resources.
+
+    Solitaire's AnimationScript field at +0x88 names Cougar's script. Search
+    explicit paths rather than assuming a fixed offset for every model class.
+    No bytecode execution or guessed mech-to-mech aliasing is involved.
+    """
+    pattern = re.compile(rb'(?<![a-z0-9_\\/])(?:content[\\/])?mechs[\\/][a-z0-9_./\\ -]+\.animscript\x00', re.I)
+    result = []
+    for name, data in sorted(files.items()):
+        if not name.casefold().endswith('{gamemodel}'): continue
+        for match in pattern.finditer(data):
+            result.append({'source': name, 'offset': match.start(),
+                           'path': normalized(match[0][:-1].decode('ascii'))})
+    return result
