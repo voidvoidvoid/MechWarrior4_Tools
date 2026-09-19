@@ -2,7 +2,7 @@
 bl_info = {
     'name': 'MechWarrior 4 Animation Tools',
     'author': 'MW4 Mercenaries Decompilation Project',
-    'version': (0, 14, 0),
+    'version': (0, 15, 0),
     'blender': (5, 1, 0),
     'location': 'File > Import/Export; 3D View > Sidebar > MW4',
     'description': 'Import MW4 skeletons and edit/export native MW4ANIM 2.1 Actions',
@@ -40,10 +40,10 @@ if 'CLASSES' in globals():
             bpy.utils.unregister_class(old_class)
 
 for module_name in ('codec', 'helm', 'archives', 'embedded', 'hierarchy', 'erf',
-                    'rig', 'animscript', 'meshes', 'textures', 'animation_ui', 'game_import'):
+                    'rig', 'animscript', 'meshes', 'textures', 'animation_ui', 'game_import', 'erf_write', 'mesh_export'):
     module = sys.modules.get(__name__ + '.' + module_name)
     if module is not None: importlib.reload(module)
-from . import codec, rig, game_import, meshes, textures, animation_ui
+from . import codec, rig, game_import, meshes, textures, animation_ui, mesh_export
 
 
 def curves_for(obj):
@@ -341,7 +341,7 @@ class MW4ANIM_PT_tools(bpy.types.Panel):
         layout.operator(MW4ANIM_OT_import.bl_idname,text='Import raw channels (diagnostic)')
         root = clip_root(context.active_object)
         box = layout.box()
-        box.label(text='Textures · R14')
+        box.label(text='Textures · R15')
         box.operator(textures.MW4ANIM_OT_textures.bl_idname, text='Load / Reload Textures from MW4')
         box.operator(textures.MW4ANIM_OT_material_preview.bl_idname)
         if root:
@@ -357,7 +357,7 @@ class MW4ANIM_PT_tools(bpy.types.Panel):
             if 'mw4_geometry_count' in root:
                 layout.label(text=f"{root['mw4_geometry_count']} ERF resources collected")
             box = layout.box()
-            box.label(text='Animations · R14')
+            box.label(text='Animations · R15')
             available = len(animation_ui.actions_for(root))
             box.label(text=f'{available} compatible animations available')
             if 'mw4_animation_discovered' in root:
@@ -390,6 +390,10 @@ class MW4ANIM_PT_tools(bpy.types.Panel):
                 if txt:
                     missing=json.loads(txt.as_string()).get('unbound_names',[])
                     if missing:layout.label(text='Unbound: '+', '.join(sorted(set(missing))))
+            box=layout.box()
+            box.label(text='Native Geometry Export')
+            box.operator(mesh_export.MW4ANIM_OT_export_erfs.bl_idname,text='Export mech ERFs (.zip)')
+            box.operator(mesh_export.MW4ANIM_OT_export_erf.bl_idname,text='Export selected part (.erf)')
             layout.label(text='Edit bones in Pose Mode; insert keys.')
             return
         layout.label(text='Channel editor · no model rig')
@@ -415,9 +419,11 @@ def menu_import(self,context):
     self.layout.operator(MW4ANIM_OT_import.bl_idname,text='MechWarrior 4 Raw Channels (.mw4anim)')
 
 def menu_export(self,context):
+    self.layout.operator(mesh_export.MW4ANIM_OT_export_erfs.bl_idname,text='MechWarrior 4 ERF Replacements (.zip)')
+    self.layout.operator(mesh_export.MW4ANIM_OT_export_erf.bl_idname,text='MechWarrior 4 Selected Part (.erf)')
     self.layout.operator(MW4ANIM_OT_export.bl_idname,text='MechWarrior 4 Animation (.mw4anim)')
 
-CLASSES = animation_ui.CLASSES + textures.CLASSES + meshes.CLASSES + game_import.CLASSES + rig.CLASSES + (MW4ANIM_OT_import,MW4ANIM_OT_export,MW4ANIM_PT_tools)
+CLASSES = mesh_export.CLASSES + animation_ui.CLASSES + textures.CLASSES + meshes.CLASSES + game_import.CLASSES + rig.CLASSES + (MW4ANIM_OT_import,MW4ANIM_OT_export,MW4ANIM_PT_tools)
 
 def register():
     registered = []
