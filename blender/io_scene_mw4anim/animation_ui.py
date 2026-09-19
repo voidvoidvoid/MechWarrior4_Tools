@@ -307,6 +307,8 @@ class MW4ANIM_OT_copy_diagnostics(bpy.types.Operator):
                 'metadata_present':bpy.data.texts.get(a.get('mw4_rig_metadata','')) is not None,
                 'compatible':compatible(obj,a)} for a in bpy.data.actions if 'mw4_rig_metadata' in a],
             'pose_position':obj.data.pose_position,
+            'mesh_import':report.get('mesh_import'),
+            'shape_references':report.get('shape_references'),
             'texture_resources':report.get('texture_resources'),
             'texture_import':report.get('texture_import'),
             'materials':[{'name':m.name,'reference':m.get('mw4_texture_reference'),
