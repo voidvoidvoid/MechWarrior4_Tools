@@ -1,0 +1,6 @@
+{
+  "blender": "5.1.0",
+  "zip_install_enabled": true,
+  "example_actions": 154,
+  "example_walk_byte_exact": true
+}
