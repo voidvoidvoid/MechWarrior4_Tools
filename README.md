@@ -2,7 +2,7 @@
 
 Tools for inspecting and editing MechWarrior 4 resources.
 
-## Blender add-on — R13 (0.13.0)
+## Blender add-on — R14 (0.14.0)
 
 Import mech skeletons, supported polygon meshes, textures, and animations from a local MW4 installation into **Blender 5.1 or newer**. Preview and edit imported animations, then export native `.mw4anim` clips.
 
