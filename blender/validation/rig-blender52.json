@@ -1,0 +1,14 @@
+{
+  "blender": "5.2.0 LTS",
+  "bone_count": 41,
+  "byte_identical_clips": 154,
+  "first_frame_bone_matrix_checks": 6314,
+  "tests": [
+    "pose rotation edit exports one track; reimport reproduces world pose",
+    "pose translation edit exports through inverse bind conversion",
+    "unsupported default-channel edit rejected",
+    "switching Actions restores default-only channels",
+    "blend save/reopen preserves byte-exact rig export"
+  ],
+  "retained_actions": 157
+}
