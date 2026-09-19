@@ -1,0 +1,11 @@
+{
+  "blender": "5.1.0",
+  "tab": "MW4",
+  "directory_import_real_textures": true,
+  "legacy_bundle_saved_directory_auto_load": true,
+  "reload_without_embedded_bundle_from_child_selection": true,
+  "texture_controls_visible_without_selection_or_bundle": true,
+  "automatic_material_preview": true,
+  "texture_resources_per_mech": 4,
+  "source": "Real Uller records repacked into test VBDs; unmodified supplied textures.mw4"
+}
