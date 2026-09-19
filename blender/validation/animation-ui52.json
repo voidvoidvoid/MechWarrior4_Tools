@@ -1,0 +1,20 @@
+{
+  "blender": "5.2.0 LTS",
+  "native_format": "MW4ANIM 2.1",
+  "source_clips": 3,
+  "edited_track_count": 1,
+  "edited_reimport_matrix_error": 5.960464477539063e-08,
+  "checks": [
+    "search-picker operator",
+    "select rig through child mesh",
+    "per-rig Action ownership",
+    "timeline and Action slot update",
+    "previous/next preserve edits",
+    "rest pose preserves Actions",
+    "native export operator byte-identical for originals",
+    "edited export/reimport reproduces pose",
+    "legacy-project compatibility",
+    "save/reopen edited Action and selection"
+  ],
+  "limit": "No live game test; no mesh/texture export or archive repacking"
+}
