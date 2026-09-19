@@ -107,6 +107,9 @@ def import_resource_files(files, report, context, import_animations=True, fps=30
             except (ValueError, OSError, RuntimeError) as exc:
                 errors.append({'name': root_name, 'error': 'Armature import: ' + str(exc)})
             if obj and import_animations:
+                # Valid rigs may have no collected/decodable clips. Blender creates
+                # AnimData lazily; do not depend on a successful clip import.
+                obj.animation_data_create()
                 for i, name in enumerate(report['animation_files']):
                     context.window_manager.progress_update(i)
                     try:
@@ -116,7 +119,7 @@ def import_resource_files(files, report, context, import_animations=True, fps=30
                         action['mw4_archive_member'] = name
                         imported_actions.append(action)
                         imported += 1
-                    except (ValueError, OSError, RuntimeError) as exc:
+                    except (ValueError, OSError, RuntimeError, KeyError) as exc:
                         entry = {'name': name, 'error': 'Animation import: ' + str(exc)}
                         errors.append(entry); animation_errors.append(entry)
                 preview = animscript.choose_action(imported_actions, files)
@@ -129,7 +132,11 @@ def import_resource_files(files, report, context, import_animations=True, fps=30
                     for pb in obj.pose.bones:
                         pb.location = (0,0,0); pb.rotation_quaternion = (1,0,0,0); pb.scale = (1,1,1)
                     report['preview_action'] = None
-                    report['warnings'].append('No walk/stand preview available; rig left in rest pose. Imported Actions remain available.')
+                    report['warnings'].append(
+                        'No walk/stand preview available; rig left in rest pose. Imported Actions remain available.'
+                        if imported_actions else
+                        'No usable animation Actions were imported; rig left in rest pose. '
+                        'Copy diagnostics for missing resources, decode failures, or unsupported clips.')
                 if hasattr(obj, 'mw4_preview_action'):
                     animation_ui.sync_selection(obj, obj.animation_data.action)
                 context.scene.frame_set(1)
