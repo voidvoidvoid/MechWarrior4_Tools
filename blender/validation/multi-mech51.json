@@ -1,0 +1,66 @@
+{
+  "blender": "5.1.0",
+  "scope": "Raw hierarchy/clip transforms; no ERF polygons supplied; root motion/state-machine blending excluded",
+  "models": {
+    "crab": {
+      "bones": 36,
+      "clips": 153,
+      "byte_identical_exports": 153,
+      "joint_pose_checks": 16524,
+      "max_matrix_error": 2.86102294921875e-06,
+      "unbound": [],
+      "script_paths": 152,
+      "script_errors": [],
+      "preferred": [
+        "content/mechs/crab/animation/crb_walk.mw4anim",
+        "content/mechs/crab/animation/crb_standpose.mw4anim"
+      ],
+      "available_preview": "crab/animation/crb_walk.mw4anim"
+    },
+    "daishi": {
+      "bones": 40,
+      "clips": 146,
+      "byte_identical_exports": 146,
+      "joint_pose_checks": 17520,
+      "max_matrix_error": 4.291534423828125e-06,
+      "unbound": [],
+      "script_paths": 153,
+      "script_errors": [],
+      "preferred": [
+        "content/mechs/daishi/animation/daishi_walk.mw4anim",
+        "content/mechs/daishi/animation/daishi_standpose.mw4anim"
+      ],
+      "available_preview": "daishi/animation/daishi_walk.mw4anim"
+    },
+    "uller": {
+      "bones": 38,
+      "clips": 7,
+      "byte_identical_exports": 7,
+      "joint_pose_checks": 798,
+      "max_matrix_error": 1.3113021850585938e-06,
+      "unbound": [],
+      "script_paths": 153,
+      "script_errors": [],
+      "preferred": [
+        "content/mechs/cougar/animation/cgr_walk.mw4anim",
+        "content/mechs/cougar/animation/cgr_standpose.mw4anim"
+      ],
+      "available_preview": null
+    },
+    "uziel": {
+      "bones": 40,
+      "clips": 154,
+      "byte_identical_exports": 154,
+      "joint_pose_checks": 18480,
+      "max_matrix_error": 5.185604095458984e-06,
+      "unbound": [],
+      "script_paths": 153,
+      "script_errors": [],
+      "preferred": [
+        "content/mechs/uziel/animation/uzi_walk.mw4anim",
+        "content/mechs/uziel/animation/uzi_standpose.mw4anim"
+      ],
+      "available_preview": "uziel/animation/uzi_walk.mw4anim"
+    }
+  }
+}
