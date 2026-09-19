@@ -138,6 +138,8 @@ def attach(files,report,obj,context,include_cockpit=False):
             modifier=child.modifiers.new('MW4 rigid joint','ARMATURE');modifier.object=obj
             child['mw4_mesh_binding']=key;child['mw4_erf_source']=part['source'];child['mw4_bone']=part['bone']
             child['mw4_lod']=0;child['mw4_lod_count']=len(part['decoded']['lods'])
+            from . import mesh_export
+            child['mw4_geometry_fingerprint']=mesh_export.geometry_fingerprint(child)
             created.append(child);existing.add(key)
     obj['mw4_mesh_count']=sum(o.type=='MESH' and 'mw4_mesh_binding' in o for o in obj.children)
     obj['mw4_rig_note']='Recovered hierarchy with rigid ERF parts; highest-detail intact geometry.'
