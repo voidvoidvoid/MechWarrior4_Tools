@@ -1,0 +1,10 @@
+{
+  "blender": "5.1.0",
+  "zero_action_state_recovered_from_bundle": true,
+  "missing_action_recovered_from_installation": true,
+  "existing_actions_and_materials_preserved": true,
+  "all_160_actions_switched_and_native_exports_verified": true,
+  "recovery_repeat_no_duplicates": true,
+  "invalid_clip_error_recorded_and_active_action_preserved": true,
+  "diagnostics_include_collection_and_import_details": true
+}
