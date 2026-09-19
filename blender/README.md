@@ -1,8 +1,14 @@
-# MW4 Blender Animation Tools — R14
+# MW4 Blender Animation Tools — R15
 
-**Blender 5.1+; add-on version 0.14.0.** Tested with Blender 5.1.0 and 5.2.0. Future Blender versions have not all been tested.
+**Blender 5.1+; add-on version 0.15.0.** Tested with Blender 5.1.0 and 5.2.0. Future Blender versions have not all been tested.
 
 The add-on imports a mech's recovered hierarchy, supported rigid mesh parts, detail textures, and animation clips. Imported clips are Blender Actions. Native animation export preserves unchanged clips byte-for-byte and supports editing existing position/quaternion tracks within the limits below.
+
+## R15: native ERF geometry export
+
+Select an imported mech or part in Object Mode, then use **MW4 → Native Geometry Export → Export mech ERFs (.zip)** or **Export selected part (.erf)**. This writes supported edits into the original ERF resources, preserving native material states and lower LODs. The ZIP contains actual `.erf` files and a resource-path manifest; it is not a game `.mw4` archive.
+
+Read the **[complete ERF export guide](docs/ERF-EXPORT.md)** before editing geometry. It covers rigid weights, topology/UV edits, per-primitive limits, unchanged lower LODs, oriented-box restrictions, and installing replacements with an external resource packer. Actual game loading still needs a live-game test.
 
 ## R14: cross-mech script dependencies and partial mesh recovery
 
@@ -26,13 +32,13 @@ Asset-free regressions reproduced the original error and verified absent, invali
 
 ## 1. Install or upgrade
 
-1. Download this repository using **Code → Download ZIP** and extract it. Open a terminal in the extracted repository folder and run `python scripts/build_blender_addon.py` (Python 3 required for this packaging step). This creates `downloads/MW4-Blender-Animation-R14.zip`. Alternatively, without Python, ZIP the **`blender/io_scene_mw4anim` folder itself**, keeping `io_scene_mw4anim/__init__.py` inside the ZIP. Do not ZIP its contents without the containing folder.
+1. Download this repository using **Code → Download ZIP** and extract it. Open a terminal in the extracted repository folder and run `python scripts/build_blender_addon.py` (Python 3 required for this packaging step). This creates `downloads/MW4-Blender-Animation-R15.zip`. Alternatively, without Python, ZIP the **`blender/io_scene_mw4anim` folder itself**, keeping `io_scene_mw4anim/__init__.py` inside the ZIP. Do not ZIP its contents without the containing folder.
 2. In Blender, open **Edit → Preferences → Add-ons**. Open the drop-down menu in that area and choose **Install from Disk**.
 3. Select the downloaded add-on ZIP. Enable **MechWarrior 4 Animation Tools** if it is not already enabled.
 4. Return to the main window. Put the pointer over the **3D Viewport** (the area displaying the scene) and press **N**.
 5. Open the **MW4** tab along the sidebar's right edge. The panel is named **MW4 Animation Tools**. The **Animation** tab is a separate Blender tab, not this add-on's panel.
 
-R14 shows **Textures · R14** and **Animations · R14**. If an older version remains visible, save your project and restart Blender. R10 and later also refresh cached add-on submodules during installation to address earlier upgrade failures.
+R15 shows **Textures · R15** and **Animations · R15**. If an older version remains visible, save your project and restart Blender. R10 and later also refresh cached add-on submodules during installation to address earlier upgrade failures.
 
 No separate Python installation, external Python packages, manual resource extraction, or running game is needed for normal use.
 
@@ -56,7 +62,7 @@ Successful texture loading switches existing 3D views to **Material Preview**. S
 For an existing imported mech:
 
 1. Select its armature or a mesh belonging to it.
-2. Open **N → MW4 → Textures · R14**.
+2. Open **N → MW4 → Textures · R15**.
 3. Click **Load / Reload Textures from MW4** and select the installation directory containing `resources/textures.mw4` (capitalization is not significant).
 4. Read the texture, missing-resource, and error counts. Click **Show Textures (Material Preview)** if needed.
 5. Save the `.blend`; successfully loaded images are packed inside it.
@@ -68,7 +74,7 @@ Texture names beginning with `@` are literal resource references. Body detail al
 ## 4. Choose and play animations
 
 1. Select the mech armature or one of its mesh parts.
-2. Open **N → MW4 → Animations · R14**; scroll down in the sidebar if needed.
+2. Open **N → MW4 → Animations · R15**; scroll down in the sidebar if needed.
 3. Check **compatible animations available**.
 4. Click the **Animation** field and choose a clip. **Previous** and **Next** cycle compatible imported Actions.
 5. Click **Play / Pause**. The Timeline frame number should advance.
@@ -103,7 +109,7 @@ Unchanged clips export byte-for-byte identical. Edited existing tracks rebuild t
 
 The exporter rejects unsupported changes such as altered rest skeletons, scale/Euler animation, constraints, drivers, active NLA strips, and modifications to default-only channels. It does not create arbitrary new native tracks or complete new clips from scratch. Retain the imported source Text datablocks and curve layout. Some source channels do not bind to a bone and are preserved as custom-property curves.
 
-The output is a native `.mw4anim` file, not a patched `.mw4` archive. Repacking and testing edited clips in the game is a separate workflow; the included validation does not establish every edited clip's in-game behavior. Mesh and texture export are not supported.
+The output is a native `.mw4anim` file, not a patched `.mw4` archive. Repacking and testing edited clips in the game is a separate workflow; the included validation does not establish every edited clip's in-game behavior. Supported mesh ERF export is now available through separate commands; texture-image export remains unsupported.
 
 ## 6. Save projects and resource bundles
 
@@ -140,7 +146,7 @@ The embedded bundle and source metadata are needed for recovery, provenance, and
 - Archives: **#VBD v4**, raw/LZW members and verified mektek/secure wrappers with CRC checks.
 - Geometry: observed **ERF 14 / MLR 18** ShapeElement/ShapeLODElement and MLR_I_L_TMesh layout; rigid joint binding; UVs and normals; highest intact LOD.
 - Textures: exact reference lookup, optional `content/` prefix normalization, TGA then PNG, supported hint interpretation, packed images and private per-rig materials.
-- Not implemented: general skinning, mesh/texture/archive export, dynamic damaged/LOD switching, camouflage compositing, runtime animation blending/state logic, procedural aiming, or root locomotion integration.
+- Not implemented: general skinning, texture/archive export, dynamic damaged/LOD switching, camouflage compositing, runtime animation blending/state logic, procedural aiming, or root locomotion integration.
 - Unsupported geometry classes and nonidentity element/group transforms are reported rather than guessed.
 - Decode limits: 64 MiB per resource and 512 MiB per collected set.
 
