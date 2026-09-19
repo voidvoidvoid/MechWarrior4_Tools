@@ -1,0 +1,9 @@
+{
+  "blender": "5.1.0",
+  "binary_bytes": 6144000,
+  "encoded_bytes": 8299790,
+  "text_write_seconds": 0.01873519600030704,
+  "legacy_and_wrapped_roundtrip": true,
+  "save_reopen": true,
+  "invalid_characters_rejected": true
+}
