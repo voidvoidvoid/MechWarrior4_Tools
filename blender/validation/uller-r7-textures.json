@@ -1,0 +1,11 @@
+{
+  "blender": "5.1.0",
+  "real_Uller_mesh_objects": 25,
+  "active_Cougar_walk_byte_identical": true,
+  "texture_images": "synthetic, under archive-relative textures/ names",
+  "resolved_resources": 6,
+  "visible_textured_materials": 4,
+  "packed_images": 4,
+  "missing": 0,
+  "errors": 0
+}
