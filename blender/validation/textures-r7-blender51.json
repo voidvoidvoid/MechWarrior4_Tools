@@ -1,0 +1,15 @@
+{
+  "blender": "5.1.0",
+  "synthetic_only": true,
+  "checks": [
+    "Resources/textures.mw4 discovery; content prefix aliases, case/slash normalization, literal @ names",
+    "PNG fallback, hint alpha, opaque skin detail masks",
+    "packed TGA/PNG images and pixel orientation",
+    "material isolation across rigs",
+    "image deduplication",
+    "save/reopen without source files",
+    "read-only archives",
+    "missing resources, conflicting archives, explicit name overrides",
+    "addon registration/unregistration"
+  ]
+}
