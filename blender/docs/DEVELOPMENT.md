@@ -14,6 +14,7 @@
 | `crypto_profile.json` | Verified resource-decoder key/table profile |
 | `animscript.py` | Static macro/path discovery; no script execution |
 | `erf.py` / `meshes.py` | Supported ERF records, rigid mesh bindings, resource-bundle import |
+| `erf_write.py` / `mesh_export.py` | Template-preserving native ERF geometry export |
 | `textures.py` | Exact resource lookup, image decoding, packed Blender materials |
 | `embedded.py` | Wrapped base64 storage for embedded bundles |
 | `game_import.py` | Installation selection and import orchestration |
@@ -36,7 +37,7 @@ python scripts/build_blender_addon.py --output downloads/test-build.zip
 
 The builder derives the R-number from the add-on's `bl_info` version and uses fixed ZIP timestamps and file permissions. It includes an explicit list of source/documentation/report types; it does not recursively scoop up game assets, `.blend` projects, Python caches, or unrelated ZIP files. It retains the `io_scene_mw4anim/` package at the archive root for Blender's legacy add-on installer.
 
-The repository contains the same runtime add-on source as the working R12 release, with reorganized public documentation. The installer is generated locally rather than stored in GitHub. To publish a changed runtime release, update `bl_info`, the guide/version links, and validation scope together before rebuilding.
+The runtime version is declared in `bl_info`; current geometry export scope is documented in `ERF-EXPORT.md`. The installer is generated locally rather than stored in GitHub. To publish a changed runtime release, update `bl_info`, the guide/version links, and validation scope together before rebuilding.
 
 ## Run tests
 
@@ -77,3 +78,13 @@ Other scripts' docstrings describe their required inputs. Historical reports und
 - Keep game assets/executables, sample `.blend` projects and generated renders outside commits and installer ZIPs.
 
 For bug reports, the R12 **Copy diagnostics** command includes Action ownership/compatibility, collection/import failures, and texture resolution. It saves a Text datablock as well as copying JSON to the clipboard. Local paths can be present in diagnostics.
+
+## ERF export regression
+
+From `blender/`, with an external reviewed Uller bundle:
+
+```powershell
+blender --background --python tests/test_erf_export.py -- "C:/MW4-test/Uller Resource Bundle.zip" ../erf-export-results.json
+```
+
+Checks exact no-op resource bytes, isolated edits, UV/topology splitting, bounds/planes, lower-LOD preservation, pose exclusion, exporter operators, failed-write preservation, save/reopen stability, and native animation export. It does not launch MW4.
