@@ -20,9 +20,10 @@ class Reader:
 
 
 def primitive(r):
+    start=r.p
     kind=r.u32()
     if kind != 0x66:raise FormatError(f'Unsupported MLR primitive {kind:#x} at {r.p-4:#x}')
-    vertices=r.array(3);uv=r.array(2);mode=r.take(1)[0]
+    vertices=r.array(3);uv=r.array(2);material_start=r.p;mode=r.take(1)[0]
     state=struct.unpack('<6I',r.take(24));texture=''
     if state[0]&0x3fff:
         n=r.u32()
@@ -30,6 +31,7 @@ def primitive(r):
         raw=r.take(n+1)
         if raw[-1]!=0:raise FormatError('Unterminated texture name')
         texture=raw[:-1].decode('cp1252');r.take(4)
+    material_raw=r.data[material_start:r.p]
     count=r.u32();indices=list(r.take(count))
     if count%3 or any(i>=len(vertices) for i in indices):raise FormatError('Invalid triangle indices')
     planes=r.array(4)
@@ -41,7 +43,8 @@ def primitive(r):
     if len(uv) not in (0,len(vertices)) or len(normals) not in (0,len(vertices)) or len(colors) not in (0,len(vertices)):
         raise FormatError('Vertex attribute count mismatch')
     return dict(kind=kind,vertices=vertices,uv=uv,triangles=[indices[i:i+3] for i in range(0,count,3)],
-                normals=normals,colors=colors,texture=texture,mode=mode)
+                normals=normals,colors=colors,texture=texture,mode=mode,planes=planes,
+                material_raw=material_raw,raw=r.data[start:r.p])
 
 
 def shape(r,size):
@@ -63,14 +66,18 @@ def loads(data):
     matrix=(1,0,0,0,0,1,0,0,0,0,1,0)
     if not flags&1:matrix=struct.unpack('<12f',r.take(48))
     if not all(math.isfinite(v) for v in matrix):raise FormatError('Non-finite ERF transform')
+    bounds_offset=r.p
     r.take(64 if flags&0x20 else 16)  # Oriented box + extents/radius, or sphere.
     count=struct.unpack('<H',r.take(2))[0] if kind==0x90 else 1
     if not 1<=count<=256:raise FormatError('Invalid LOD count')
     if r.take(4)!=b'#RLM' or r.u32()!=18:raise FormatError('Expected MLR version 18')
+    prefix=data[:r.p]
     lods=[]
     for _ in range(count):
+        lod_start=r.p
         distance=struct.unpack('<2f',r.take(8)) if kind==0x90 else (0,0)
         size=r.u32();meshes=shape(r,size)
-        lods.append(dict(distance=distance,meshes=meshes))
+        lods.append(dict(distance=distance,meshes=meshes,raw=data[lod_start:r.p]))
     if r.p!=len(data):raise FormatError(f'Unconsumed ERF bytes at {r.p:#x} of {len(data):#x}')
-    return dict(kind=kind,matrix=matrix,lods=lods)
+    return dict(kind=kind,matrix=matrix,lods=lods,flags=flags,
+                bounds_offset=bounds_offset,prefix=prefix,original=bytes(data))
