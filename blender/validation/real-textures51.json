@@ -1,0 +1,48 @@
+{
+  "blender": "5.1.0",
+  "real_archive": true,
+  "indexed_members": 13223,
+  "resolved_textures": {
+    "@aulr0": "textures/@aulr0.tga",
+    "@pilot": "textures/@pilot.tga",
+    "@team": "textures/@team.tga",
+    "RunningLight": "textures/runninglight.tga",
+    "cage1": "textures/cage1.tga",
+    "cdash1": "textures/cdash1.tga"
+  },
+  "errors": [],
+  "mesh_objects": 25,
+  "visible_materials": 4,
+  "images": [
+    {
+      "name": "textures/@aulr0.tga",
+      "size": [
+        512,
+        512
+      ],
+      "packed": true,
+      "sha256": "489672218ac35d0e6b767979d464583ac488666eff68399f0146e922df2975e5"
+    },
+    {
+      "name": "textures/@team.tga",
+      "size": [
+        64,
+        64
+      ],
+      "packed": true,
+      "sha256": "477a2232f22fbca3058458c0ed5170d1e5d30b829ce40c9cce767f2b1eef34fa"
+    },
+    {
+      "name": "textures/runninglight.tga",
+      "size": [
+        64,
+        64
+      ],
+      "packed": true,
+      "sha256": "45ae6cb9f832466f7f02cf19c212b187c8673b283209518270852347af8d228a"
+    }
+  ],
+  "actions_switched_and_exported": 160,
+  "elapsed_seconds": 23.981400686000597,
+  "save_reopen_and_bundle_image_bytes_verified": true
+}
