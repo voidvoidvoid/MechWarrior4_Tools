@@ -1,18 +1,26 @@
-# MW4 Blender Animation Tools — R12
+# MW4 Blender Animation Tools — R13
 
-**Blender 5.1+; add-on version 0.12.0.** Tested with Blender 5.1.0 and 5.2.0. Future Blender versions have not all been tested.
+**Blender 5.1+; add-on version 0.13.0.** Tested with Blender 5.1.0 and 5.2.0. Future Blender versions have not all been tested.
 
 The add-on imports a mech's recovered hierarchy, supported rigid mesh parts, detail textures, and animation clips. Imported clips are Blender Actions. Native animation export preserves unchanged clips byte-for-byte and supports editing existing position/quaternion tracks within the limits below.
 
+## R13: MekTek-reported import crash
+
+Fixed the screenshot-reported `AttributeError: 'NoneType' object has no attribute 'action'` in the no-preview fallback. A newly created Blender armature has no AnimData until explicitly created or keyed. If no animation files were collected, or all clips failed validation before key insertion, the fallback crashed before attaching meshes and saving the diagnostic report.
+
+R13 explicitly initializes AnimData before importing clips, records missing bundle entries as per-clip errors, and correctly reports when no usable Actions exist. This fixes the reproduced crash; it does **not** prove that every MekTek asset format or encryption variant is supported. The decoder and its CRC validation are unchanged.
+
+Asset-free regressions reproduced the original error and verified absent, invalid, missing, and simulated upstream decode-error cases on Blender 5.1 and 5.2. Actual affected MekTek assets were not provided. If a mech imports without animations, use **Copy diagnostics** and inspect `resource_errors`, `animation_dependencies`, and `animation_import`. A CRC/decryption error needs the failing resource/affected archive to investigate; missing dependencies or unsupported animation versions need different fixes. Provide the full diagnostic report and the affected mech name, ideally with an exported resource bundle. If collection failed to decode a resource, it will be absent from that bundle, so the original affected archive may also be needed.
+
 ## 1. Install or upgrade
 
-1. Download this repository using **Code → Download ZIP** and extract it. Open a terminal in the extracted repository folder and run `python scripts/build_blender_addon.py` (Python 3 required for this packaging step). This creates `downloads/MW4-Blender-Animation-R12.zip`. Alternatively, without Python, ZIP the **`blender/io_scene_mw4anim` folder itself**, keeping `io_scene_mw4anim/__init__.py` inside the ZIP. Do not ZIP its contents without the containing folder.
+1. Download this repository using **Code → Download ZIP** and extract it. Open a terminal in the extracted repository folder and run `python scripts/build_blender_addon.py` (Python 3 required for this packaging step). This creates `downloads/MW4-Blender-Animation-R13.zip`. Alternatively, without Python, ZIP the **`blender/io_scene_mw4anim` folder itself**, keeping `io_scene_mw4anim/__init__.py` inside the ZIP. Do not ZIP its contents without the containing folder.
 2. In Blender, open **Edit → Preferences → Add-ons**. Open the drop-down menu in that area and choose **Install from Disk**.
 3. Select the downloaded add-on ZIP. Enable **MechWarrior 4 Animation Tools** if it is not already enabled.
 4. Return to the main window. Put the pointer over the **3D Viewport** (the area displaying the scene) and press **N**.
 5. Open the **MW4** tab along the sidebar's right edge. The panel is named **MW4 Animation Tools**. The **Animation** tab is a separate Blender tab, not this add-on's panel.
 
-R12 shows **Textures · R12** and **Animations · R12**. If an older version remains visible, save your project and restart Blender. R10 and later also refresh cached add-on submodules during installation to address earlier upgrade failures.
+R13 shows **Textures · R13** and **Animations · R13**. If an older version remains visible, save your project and restart Blender. R10 and later also refresh cached add-on submodules during installation to address earlier upgrade failures.
 
 No separate Python installation, external Python packages, manual resource extraction, or running game is needed for normal use.
 
@@ -21,7 +29,7 @@ No separate Python installation, external Python packages, manual resource extra
 1. Click **Import from MW4 installation** in the MW4 panel. Alternatively use **File → Import → MechWarrior 4 from Installation**.
 2. Select the full game installation directory. The scanner searches recursively for `.mw4` archives, including `Resource`/`Resources` folders and `textures.mw4`. Selecting the resource directory itself also works if it contains all required archives.
 3. After scanning, select the desired **Model / source archive** entry.
-4. Leave **Import animation Actions** enabled. R12 defaults it to enabled when opening the model-selection dialog.
+4. Leave **Import animation Actions** enabled. R13 defaults it to enabled when opening the model-selection dialog.
 5. Leave **Timeline FPS** at 30 unless you have a specific reason to change the sampling timeline. Confirm the import.
 6. Select the imported armature or one of its mesh parts to expose that mech's animation tools.
 
@@ -36,7 +44,7 @@ Successful texture loading switches existing 3D views to **Material Preview**. S
 For an existing imported mech:
 
 1. Select its armature or a mesh belonging to it.
-2. Open **N → MW4 → Textures · R12**.
+2. Open **N → MW4 → Textures · R13**.
 3. Click **Load / Reload Textures from MW4** and select the installation directory containing `resources/textures.mw4` (capitalization is not significant).
 4. Read the texture, missing-resource, and error counts. Click **Show Textures (Material Preview)** if needed.
 5. Save the `.blend`; successfully loaded images are packed inside it.
@@ -48,7 +56,7 @@ Texture names beginning with `@` are literal resource references. Body detail al
 ## 4. Choose and play animations
 
 1. Select the mech armature or one of its mesh parts.
-2. Open **N → MW4 → Animations · R12**; scroll down in the sidebar if needed.
+2. Open **N → MW4 → Animations · R13**; scroll down in the sidebar if needed.
 3. Check **compatible animations available**.
 4. Click the **Animation** field and choose a clip. **Previous** and **Next** cycle compatible imported Actions.
 5. Click **Play / Pause**. The Timeline frame number should advance.
@@ -109,7 +117,7 @@ The embedded bundle and source metadata are needed for recovery, provenance, and
 | Gray surfaces | Use Material Preview; check texture counts and reload from the installation. |
 | Missing or conflicting resources | Copy diagnostics for exact archive/member errors; supply the complete matching installation. |
 | No mesh | Use full installation import; animation files alone do not contain polygons. |
-| Upgrade error mentioning `register_properties` | Install R12; save and restart Blender if an older add-on remains loaded. |
+| Upgrade error mentioning `register_properties` | Install R13; save and restart Blender if an older add-on remains loaded. |
 | Export rejected | Read the error; keep the original hierarchy, supported channels and interpolation, and key-count limits. |
 
 **Copy diagnostics** copies JSON to the clipboard and also stores it in a Blender Text datablock. It includes version information, Action counts/compatibility, animation collection/import failures, texture lookup results, and material image state. Reports can include local filesystem paths; review them before posting publicly. For a bug report, include Blender/add-on versions, the import route, mech name, exact error, and diagnostics.
