@@ -64,8 +64,7 @@ class Catalog:
             raise Error('No readable #VBD v4 .mw4 archives found. Select the game installation or Resource directory.')
 
     def models(self):
-        return [r for r in self.rows if normalized(r['name']).endswith('.contents')
-                and '/mechs/' in '/' + normalized(r['name'])]
+        return [r for r in self.rows if normalized(r['name']).endswith(('.contents', '.erf'))]
 
     def read(self, row):
         key = (row['archive'], row['ordinal'])
@@ -109,6 +108,9 @@ class Catalog:
         accepted only if the candidate geometry is also named for this model.
         Ambiguous/missing references remain explicit; never use unrelated IDs.
         """
+        if normalized(root['name']).endswith('.erf'):
+            data, method = self.read(root)
+            return erf_bundle(root['name'], data, self.describe(root), method)
         prefix = normalized(root['name']).rsplit('/', 1)[0] + '/'
         model = prefix.rstrip('/').split('/')[-1]
         groups = {}
@@ -246,3 +248,20 @@ def write_bundle(path, files, report):
         for name, data in sorted(files.items()):
             z.writestr('/'.join(helm.safe_parts(name)), data)
         z.writestr('_mw4_resource_report.json', json.dumps(report, indent=2))
+
+
+def erf_bundle(name, data, source=None, method=None):
+    from . import erf
+    name=normalized(name)
+    helm.safe_parts(name)
+    erf.loads(data)  # Reject unsupported layouts before creating Blender objects.
+    source=dict(source or {'name':name,'id':0})
+    source['name']=name
+    report={'schema':1,'asset_mode':'standalone_erf','model':Path(name).stem,
+        'source':source,'archives':[],'warnings':[
+            'Standalone ERF geometry only. The asset_root bone is an export container, not a recovered game joint. '
+            'Use a supported .contents hierarchy for moving parts and animation.'],
+        'resources':[dict(source,**(method or {}),sha256=hashlib.sha256(data).hexdigest(),bytes=len(data))],
+        'shape_references':[],'errors':[],'geometry_files':[name],
+        'animation_files':[],'unresolved_shapes':0,'complete':True}
+    return {name:data},report
