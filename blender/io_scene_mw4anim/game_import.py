@@ -206,12 +206,22 @@ class MW4ANIM_OT_game_model(bpy.types.Operator):
         items=model_items(self,context)
         self.model=items[0][0]
 
-    def reset_category(self,context):
-        self.subfolder=resource_browser.ALL
+    def reset_scope(self,context):
+        # A folder containing only loose geometry has no .contents choice.
+        # Scope changes can select its available type; text search never does.
+        args=(self.category,self.subfolder,'')
+        current=resource_browser.filter_rows(_model_rows,self.resource_type,*args)
+        other='ERF' if self.resource_type=='CONTENTS' else 'CONTENTS'
+        if not current and resource_browser.filter_rows(_model_rows,other,*args):
+            self.resource_type=other
         self.reset_model(context)
 
+    def reset_category(self,context):
+        self.subfolder=resource_browser.ALL
+        self.reset_scope(context)
+
     category:bpy.props.EnumProperty(name='Category',items=category_items,update=reset_category)
-    subfolder:bpy.props.EnumProperty(name='Folder',items=folder_items,update=reset_model)
+    subfolder:bpy.props.EnumProperty(name='Folder',items=folder_items,update=reset_scope)
     search:bpy.props.StringProperty(name='Search paths',default='',update=reset_model,
         description='Match all entered words in the resource path')
     resource_type: bpy.props.EnumProperty(name='Resource type',items=[
@@ -236,6 +246,10 @@ class MW4ANIM_OT_game_model(bpy.types.Operator):
         count=0 if items[0][0]=='__NONE__' else len(items)
         self.layout.label(text=f'{count} matching resources')
         row=self.layout.row();row.enabled=bool(count);row.prop(self,'model')
+        if not count:
+            other='ERF' if self.resource_type=='CONTENTS' else 'CONTENTS'
+            available=resource_browser.filter_rows(_model_rows,other,self.category,self.subfolder,self.search)
+            if available:self.layout.label(text=f'{len(available)} matches under the other Resource type',icon='INFO')
         if self.resource_type=='CONTENTS':
             self.layout.prop(self, 'import_animations')
             self.layout.prop(self, 'fps')
@@ -257,6 +271,9 @@ class MW4ANIM_OT_game_model(bpy.types.Operator):
                    f"{report['unresolved_shapes']} unresolved shape references, {len(report['errors'])} errors.")
         tx = report.get('texture_import', {})
         message += f" {len(tx.get('images',[]))} textures; {len(tx.get('missing',[]))} unresolved materials."
+        message += textures.problem_summary(report)
+        format_warnings=report.get('mesh_import',{}).get('format_warnings',[])
+        if format_warnings:message+=f' {len(format_warnings)} source length inconsistencies recovered; see diagnostics.'
         deps = report.get('animation_dependencies', {})
         if deps.get('missing'):
             message += f" {len(deps['missing'])} referenced animation files missing."
