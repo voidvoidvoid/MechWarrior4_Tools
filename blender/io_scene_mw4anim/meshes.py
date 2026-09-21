@@ -28,6 +28,10 @@ def read_bundle(source):
 
 
 def plans(files,report,info,include_cockpit=False):
+    if report.get('asset_mode') == 'standalone_erf':
+        source=archives.normalized(report['source']['name'])
+        return [dict(bone='asset_root', source=source,
+            component_matrix=(1,0,0,0,0,1,0,0,0,0,1,0), decoded=erf.loads(files[source]))], []
     rows=report['resources']
     def resource(rid,suffix):
         names={archives.normalized(r['name']) for r in rows if r['id']==rid and archives.normalized(r['name']).endswith(suffix)}
