@@ -1,0 +1,29 @@
+{
+  "blender": "5.1.0",
+  "atlas_mesh_objects": 23,
+  "atlas_torso_sections": 3,
+  "atlas_textures": 5,
+  "atlas_unchanged_erfs_byte_identical": 17,
+  "edited_size_corrected": true,
+  "truncated_trailing_and_nonterminal_mismatches_rejected": true,
+  "buildings": {
+    "buildings/satelite_control/satelite_control.contents": {
+      "meshes": 3,
+      "textures": [
+        "textures/bisat1.tga"
+      ]
+    },
+    "buildings/vehicle_hangar2/vehicle_hangar2_light.erf": {
+      "meshes": 1,
+      "textures": [
+        "textures/runninglight.tga"
+      ]
+    },
+    "buildings/vehicle_hangar2/vehicle_hangar2.erf": {
+      "meshes": 2,
+      "textures": [
+        "textures/biair1.tga"
+      ]
+    }
+  }
+}
