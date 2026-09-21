@@ -2,7 +2,7 @@
 
 Tools for inspecting and editing MechWarrior 4 resources.
 
-## Blender add-on — R15 (0.15.0)
+## Blender add-on — R16 (0.16.0)
 
 Import mech skeletons, supported polygon meshes, textures, and animations from a local MW4 installation into **Blender 5.1 or newer**. Preview and edit imported animations, then export native `.mw4anim` clips and supported edited mech `.erf` parts.
 
@@ -35,3 +35,9 @@ python scripts/build_blender_addon.py
 ```
 
 The repository is associated with the [MW4 Mercenaries decompilation project](https://github.com/voidvoidvoid/MW4_Mercs_Decomp). Access to that separate repository is not required to use the Blender add-on.
+
+## R16: other asset import/export
+
+The installation browser now includes non-mech `.contents` hierarchies and a separate `.erf` geometry list. Standalone ERFs can also be imported directly. Existing ERF export works on supported imported resources from buildings, vehicles and aircraft. Support is format-dependent; real non-mech samples and live-game validation are still needed.
+
+See [other asset workflows and support boundaries](blender/docs/OTHER-ASSETS.md).
