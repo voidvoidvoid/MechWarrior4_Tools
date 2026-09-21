@@ -37,6 +37,13 @@ p.subfolder='missions/arctic';assert p.resource_type=='ERF' and p.model=='3'
 assert {item[0] for item in ui.category_items(p,None)}=={browser.ALL,browser.ROOT,'mechs','missions','vehicles'}
 # Returned enum strings/items persist across calls (Blender dynamic enum lifetime).
 assert ui.model_items(p,None) is ui.model_items(p,None)
+rows.append(dict(name='maps/test/test.erf',archive=0,map_root=True))
+ui.configure_models(SimpleNamespace(archives=[{'relative':'props.mw4'}]),rows)
+p.resource_type='CONTENTS';p.category='maps'
+assert p.resource_type=='MAP' and p.model=='6'
+p.search='missing';assert p.model=='__NONE__' and p.resource_type=='MAP'
+p.search='';assert p.model=='6'
+p.category='mechs';assert p.resource_type=='CONTENTS' and p.model=='0'
 del bpy.types.Scene.mw4_filter_probe;bpy.utils.unregister_class(FilterProbe)
 addon.unregister()
 print('Category/folder/search/type filtering and empty-selection callbacks PASS')

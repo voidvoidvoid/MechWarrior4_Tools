@@ -64,7 +64,10 @@ class Catalog:
             raise Error('No readable #VBD v4 .mw4 archives found. Select the game installation or Resource directory.')
 
     def models(self):
-        return [r for r in self.rows if normalized(r['name']).endswith(('.contents', '.erf'))]
+        zone_roots = {(r['archive'], normalized(r['name'])[:-7]) for r in self.rows
+                      if normalized(r['name']).endswith('.erf{zones}')}
+        return [dict(r, map_root=(r['archive'],normalized(r['name'])) in zone_roots)
+                for r in self.rows if normalized(r['name']).endswith(('.contents', '.erf'))]
 
     def read(self, row):
         key = (row['archive'], row['ordinal'])
@@ -108,6 +111,9 @@ class Catalog:
         accepted only if the candidate geometry is also named for this model.
         Ambiguous/missing references remain explicit; never use unrelated IDs.
         """
+        if root.get('map_root'):
+            from . import terrain
+            return terrain.collect(self, root)
         if normalized(root['name']).endswith('.erf'):
             data, method = self.read(root)
             return erf_bundle(root['name'], data, self.describe(root), method)

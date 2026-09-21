@@ -46,7 +46,7 @@ def texture_paths(reference):
         else [root+suffix for suffix in IMAGE_SUFFIXES])]
 
 
-def collect(catalog, files, report, refs=None, overrides=None):
+def collect(catalog, files, report, refs=None, overrides=None, preferred_archive=None):
     index = {}
     for row in catalog.rows:
         index.setdefault(texture_key(row['name']), []).append(row)
@@ -57,7 +57,7 @@ def collect(catalog, files, report, refs=None, overrides=None):
     overrides = overrides or {}
     def get(name):
         candidates = index.get(texture_key(name), [])
-        row = catalog.unique(candidates)
+        row = catalog.unique(candidates, preferred_archive)
         if row is None: return None
         data, method = catalog.read(row)
         name = archives.normalized(row['name'])
@@ -211,6 +211,15 @@ def apply(files, report, root):
     return result
 
 
+
+def texture_root(obj):
+    from . import clip_root
+    current = obj
+    while current:
+        if current.get('mw4_map'): return current
+        current = current.parent
+    return clip_root(obj)
+
 class MW4ANIM_OT_textures(bpy.types.Operator):
     bl_idname = 'import_scene.mw4_textures'
     bl_label = 'Load Textures from MW4 Installation'
@@ -223,19 +232,19 @@ class MW4ANIM_OT_textures(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         from . import clip_root
-        root = clip_root(context.object)
+        root = texture_root(context.object)
         return root is not None and bool(material_references(root))
 
     def invoke(self, context, event):
         from . import clip_root, game_import
-        root = clip_root(context.object); prefs = game_import.preferences(context)
+        root = texture_root(context.object); prefs = game_import.preferences(context)
         self.directory = root.get('mw4_game_directory', '') or (prefs.game_directory if prefs else '')
         context.window_manager.fileselect_add(self)
         return {'RUNNING_MODAL'}
 
     def execute(self, context):
         from . import clip_root, meshes, game_import
-        root = clip_root(context.object)
+        root = texture_root(context.object)
         try:
             overrides = json.loads(self.overrides)
             if not isinstance(overrides, dict) or any(not isinstance(k, str) or not isinstance(v, str) for k,v in overrides.items()):
@@ -248,7 +257,13 @@ class MW4ANIM_OT_textures(bpy.types.Operator):
                 files, report = meshes.read_bundle(io.BytesIO(embedded.decode(text.as_string())))
             else:
                 files, report = {}, {'resources': []}
-            collect(catalog, files, report, refs=material_references(root), overrides=overrides)
+            preferred = None
+            if root.get('mw4_map'):
+                source_archive = report.get('source',{}).get('archive')
+                preferred = next((i for i,a in enumerate(catalog.archives)
+                    if a['relative'] == source_archive),None)
+            collect(catalog, files, report, refs=material_references(root), overrides=overrides,
+                    preferred_archive=preferred)
             result = apply(files, report, root)
             if text is not None:
                 packed = io.BytesIO(); archives.write_bundle(packed, files, report)

@@ -1,6 +1,6 @@
-# MW4 Blender Animation Tools — R18
+# MW4 Blender Animation Tools — R19
 
-**Blender 5.1+; add-on version 0.18.0.** R18 tested with Blender 5.1.0; R15 was also tested with 5.2.0. Future Blender versions have not all been tested.
+**Blender 5.1+; add-on version 0.19.0.** R19 tested with Blender 5.1.0; R15 was also tested with 5.2.0. Future Blender versions have not all been tested.
 
 The add-on imports a mech's recovered hierarchy, supported rigid mesh parts, detail textures, and animation clips. Imported clips are Blender Actions. Native animation export preserves unchanged clips byte-for-byte and supports editing existing position/quaternion tracks within the limits below.
 
@@ -32,13 +32,13 @@ Asset-free regressions reproduced the original error and verified absent, invali
 
 ## 1. Install or upgrade
 
-1. Download this repository using **Code → Download ZIP** and extract it. Open a terminal in the extracted repository folder and run `python scripts/build_blender_addon.py` (Python 3 required for this packaging step). This creates `downloads/MW4-Blender-Animation-R18.zip`. Alternatively, without Python, ZIP the **`blender/io_scene_mw4anim` folder itself**, keeping `io_scene_mw4anim/__init__.py` inside the ZIP. Do not ZIP its contents without the containing folder.
+1. Download this repository using **Code → Download ZIP** and extract it. Open a terminal in the extracted repository folder and run `python scripts/build_blender_addon.py` (Python 3 required for this packaging step). This creates `downloads/MW4-Blender-Animation-R19.zip`. Alternatively, without Python, ZIP the **`blender/io_scene_mw4anim` folder itself**, keeping `io_scene_mw4anim/__init__.py` inside the ZIP. Do not ZIP its contents without the containing folder.
 2. In Blender, open **Edit → Preferences → Add-ons**. Open the drop-down menu in that area and choose **Install from Disk**.
 3. Select the downloaded add-on ZIP. Enable **MechWarrior 4 Animation Tools** if it is not already enabled.
 4. Return to the main window. Put the pointer over the **3D Viewport** (the area displaying the scene) and press **N**.
 5. Open the **MW4** tab along the sidebar's right edge. The panel is named **MW4 Animation Tools**. The **Animation** tab is a separate Blender tab, not this add-on's panel.
 
-R18 shows **Textures · R18** and **Animations · R18**. If an older version remains visible, save your project and restart Blender. R10 and later also refresh cached add-on submodules during installation to address earlier upgrade failures.
+R19 shows **Textures · R19** and **Animations · R19**. If an older version remains visible, save your project and restart Blender. R10 and later also refresh cached add-on submodules during installation to address earlier upgrade failures.
 
 No separate Python installation, external Python packages, manual resource extraction, or running game is needed for normal use.
 
@@ -62,7 +62,7 @@ Successful texture loading switches existing 3D views to **Material Preview**. S
 For an existing imported mech:
 
 1. Select its armature or a mesh belonging to it.
-2. Open **N → MW4 → Textures · R18**.
+2. Open **N → MW4 → Textures · R19**.
 3. Click **Load / Reload Textures from MW4** and select the installation directory containing `resources/textures.mw4` (capitalization is not significant).
 4. Read the texture, missing-resource, and error counts. Click **Show Textures (Material Preview)** if needed.
 5. Save the `.blend`; successfully loaded images are packed inside it.
@@ -74,7 +74,7 @@ Texture names beginning with `@` are literal resource references. Body detail al
 ## 4. Choose and play animations
 
 1. Select the mech armature or one of its mesh parts.
-2. Open **N → MW4 → Animations · R18**; scroll down in the sidebar if needed.
+2. Open **N → MW4 → Animations · R19**; scroll down in the sidebar if needed.
 3. Check **compatible animations available**.
 4. Click the **Animation** field and choose a clip. **Previous** and **Next** cycle compatible imported Actions.
 5. Click **Play / Pause**. The Timeline frame number should advance.
@@ -175,3 +175,7 @@ Atlas's torso ERF declares its shape two bytes shorter than the parsed data. R18
 Selecting a category/folder with only ERF geometry now switches Resource type to Geometry automatically. Text search never switches types. `buildings/vehicle_hangar2` has two ERFs and no `.contents` in the tested archives; choose `vehicle_hangar2.erf` for the main building or `vehicle_hangar2_light.erf` for its light geometry. The standalone importer does not infer assembly from neighboring files.
 
 Real-archive Blender 5.1 tests: Atlas imports 23 meshes including 3 torso/face sections and 5 textures; 17 unchanged ERFs remain byte-identical on export. `satelite_control` imports 3 meshes with `textures/bisat1.tga`; the hangar's main geometry uses `textures/biair1.tga`, and its light uses `textures/runninglight.tga`. The satellite building's missing-texture report was not reproduced with these archives. Import/reload messages now include missing reference names, searched paths or lookup/decode errors. If your installation still fails, provide Copy diagnostics and its resource bundle. No live-game validation performed.
+
+## R19: map terrain
+
+**Import from MW4 Installation → Resource type: Map terrain → Category: Maps → Folder: maps/<name>** imports supported terrain grids with packed base textures. Frame the selected terrain using **Numpad .**. Tested on URBAN01/02/05 in Blender 5.1. This does not import mission placement, vegetation, water effects, or enable native map export. See the [map import guide](docs/MAP_IMPORT.md) for the exact scope and diagnostics.

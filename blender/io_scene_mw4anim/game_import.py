@@ -8,7 +8,7 @@ import zipfile
 
 import bpy
 from bpy_extras.io_utils import ExportHelper
-from . import archives, codec, hierarchy, rig, meshes, textures, animscript, embedded, animation_ui, resource_browser
+from . import archives, codec, hierarchy, rig, meshes, textures, animscript, embedded, animation_ui, resource_browser, terrain
 
 _catalog = None
 _model_rows = []
@@ -85,8 +85,10 @@ class MW4ANIM_OT_game_directory(bpy.types.Operator):
             if not rows: raise archives.Error('No .contents or .erf resources found in readable archives')
             configure_models(catalog, rows)
             if prefs: prefs.game_directory = str(catalog.root)
-            selected = next((str(i) for i,r in enumerate(rows) if r['name'].lower().endswith('.contents')), '0')
-            kind = 'CONTENTS' if rows[int(selected)]['name'].lower().endswith('.contents') else 'ERF'
+            selected = next((str(i) for i,r in enumerate(rows) if r['name'].lower().endswith('.contents')),
+                next((str(i) for i,r in enumerate(rows) if r.get('map_root')), '0'))
+            kind = ('MAP' if rows[int(selected)].get('map_root') else
+                    'CONTENTS' if rows[int(selected)]['name'].lower().endswith('.contents') else 'ERF')
             bpy.ops.import_scene.mw4_game_model('INVOKE_DEFAULT', resource_type=kind, model=selected, import_animations=True)
         except (OSError, ValueError, RuntimeError) as exc:
             self.report({'ERROR'}, str(exc)); return {'CANCELLED'}
@@ -97,11 +99,25 @@ class MW4ANIM_OT_game_directory(bpy.types.Operator):
 
 def import_model(catalog, row, context, import_animations=True, fps=30):
     files, report = catalog.collect(row)
-    textures.collect(catalog, files, report)
+    if report.get('asset_mode') == 'map_terrain':
+        decoded = terrain.decode_files(files, report)
+        refs = sorted({m['texture'] for n,z in decoded for m in z['meshes'] if m['texture']})
+        textures.collect(catalog, files, report, refs=refs, preferred_archive=row['archive'])
+    else:
+        textures.collect(catalog, files, report)
     return import_resource_files(files, report, context, import_animations, fps, str(catalog.root))
 
 
 def import_resource_files(files, report, context, import_animations=True, fps=30, game_directory=''):
+    if report.get('asset_mode') == 'map_terrain':
+        obj = terrain.build(files, report, context)
+        obj['mw4_game_directory'] = game_directory
+        obj['mw4_archive_source'] = json.dumps(report['source'])
+        tx = textures.apply(files, report, obj)
+        if tx['images']: textures.show_textures(context)
+        report.update(imported_actions=0, imported_bones=0, complete=not report['errors'] and not report['terrain_import']['skipped_shapes'])
+        save_import_bundle(files, report, context, obj)
+        return obj, report
     if report.get('asset_mode') == 'standalone_erf':
         import_animations = False
     # Keep a portable bundle even if unsupported rig/clip formats are encountered.
@@ -186,6 +202,11 @@ def import_resource_files(files, report, context, import_animations=True, fps=30
     report['imported_actions'] = imported
     report['imported_bones'] = len(obj.data.bones) if obj else 0
     report['complete'] = not errors and not report['unresolved_shapes']
+    save_import_bundle(files, report, context, obj)
+    return obj, report
+
+
+def save_import_bundle(files, report, context, obj):
     report_text = bpy.data.texts.new(report['model'] + ' · MW4 resource report')
     report_text.write(json.dumps(report, indent=2)); report_text.use_fake_user=True
     bundle = io.BytesIO(); archives.write_bundle(bundle, files, report)
@@ -211,9 +232,11 @@ class MW4ANIM_OT_game_model(bpy.types.Operator):
         # Scope changes can select its available type; text search never does.
         args=(self.category,self.subfolder,'')
         current=resource_browser.filter_rows(_model_rows,self.resource_type,*args)
-        other='ERF' if self.resource_type=='CONTENTS' else 'CONTENTS'
-        if not current and resource_browser.filter_rows(_model_rows,other,*args):
-            self.resource_type=other
+        if not current:
+            for other in ('MAP','CONTENTS','ERF'):
+                if resource_browser.filter_rows(_model_rows,other,*args):
+                    self.resource_type=other
+                    break
         self.reset_model(context)
 
     def reset_category(self,context):
@@ -226,7 +249,8 @@ class MW4ANIM_OT_game_model(bpy.types.Operator):
         description='Match all entered words in the resource path')
     resource_type: bpy.props.EnumProperty(name='Resource type',items=[
         ('CONTENTS','Model hierarchies (.contents)','Assembled assets using supported hierarchy records'),
-        ('ERF','Geometry resources (.erf)','Standalone geometry; no recovered moving-part hierarchy')],
+        ('ERF','Geometry resources (.erf)','Standalone geometry; no recovered moving-part hierarchy'),
+        ('MAP','Map terrain','World grid terrain and baked base textures; no mission objects')],
         default='CONTENTS',update=reset_model)
     model: bpy.props.EnumProperty(name='Model / source archive', items=model_items)
     import_animations: bpy.props.BoolProperty(name='Import animation Actions', default=True)
@@ -247,14 +271,19 @@ class MW4ANIM_OT_game_model(bpy.types.Operator):
         self.layout.label(text=f'{count} matching resources')
         row=self.layout.row();row.enabled=bool(count);row.prop(self,'model')
         if not count:
-            other='ERF' if self.resource_type=='CONTENTS' else 'CONTENTS'
-            available=resource_browser.filter_rows(_model_rows,other,self.category,self.subfolder,self.search)
-            if available:self.layout.label(text=f'{len(available)} matches under the other Resource type',icon='INFO')
+            for other in ('CONTENTS','ERF','MAP'):
+                if other==self.resource_type: continue
+                available=resource_browser.filter_rows(_model_rows,other,self.category,self.subfolder,self.search)
+                if available:self.layout.label(text=f'{len(available)} matches under Resource type {other}',icon='INFO')
         if self.resource_type=='CONTENTS':
             self.layout.prop(self, 'import_animations')
             self.layout.prop(self, 'fps')
-        self.layout.label(text='Contents: assembled hierarchy. ERF: standalone geometry, no moving-part hierarchy.')
-        self.layout.label(text='Highest-detail intact parts; texture images loaded and packed automatically.')
+        if self.resource_type=='MAP':
+            self.layout.label(text='Terrain only: excludes mission objects, vegetation and water effects.')
+        else:
+            self.layout.label(text='Contents: assembled hierarchy. ERF: standalone geometry, no moving-part hierarchy.')
+        self.layout.label(text='Base terrain textures are loaded and packed automatically.' if self.resource_type=='MAP'
+            else 'Highest-detail intact parts; texture images loaded and packed automatically.')
         if _catalog and _catalog.warnings:
             self.layout.label(text=f'{len(_catalog.warnings)} unreadable archives; details will be in the report.', icon='ERROR')
 
@@ -272,6 +301,8 @@ class MW4ANIM_OT_game_model(bpy.types.Operator):
         tx = report.get('texture_import', {})
         message += f" {len(tx.get('images',[]))} textures; {len(tx.get('missing',[]))} unresolved materials."
         message += textures.problem_summary(report)
+        if report.get('asset_mode')=='map_terrain':
+            message += f" Terrain only; {len(report.get('terrain_import',{}).get('skipped_shapes',[]))} unsupported shapes omitted."
         format_warnings=report.get('mesh_import',{}).get('format_warnings',[])
         if format_warnings:message+=f' {len(format_warnings)} source length inconsistencies recovered; see diagnostics.'
         deps = report.get('animation_dependencies', {})
@@ -289,7 +320,7 @@ class MW4ANIM_OT_resource_bundle(bpy.types.Operator, ExportHelper):
     filter_glob: bpy.props.StringProperty(default='*.zip', options={'HIDDEN'})
 
     def execute(self, context):
-        obj = context.object
+        obj = textures.texture_root(context.object)
         owner = obj if obj and 'mw4_resource_bundle' in obj else context.scene
         text = bpy.data.texts.get(owner.get('mw4_resource_bundle',''))
         if not text:

@@ -2,12 +2,13 @@
 
 Tools for inspecting and editing MechWarrior 4 resources.
 
-## Blender add-on — R18 (0.16.0)
+## Blender add-on — R19 (0.19.0)
 
 Import mech skeletons, supported polygon meshes, textures, and animations from a local MW4 installation into **Blender 5.1 or newer**. Preview and edit imported animations, then export native `.mw4anim` clips and supported edited mech `.erf` parts.
 
 - **[Get the source ZIP](https://github.com/voidvoidvoid/MechWarrior4_Tools/archive/refs/heads/main.zip)**, extract it, then build the installer as described below.
 - **[Installation and complete user guide](blender/README.md)**
+- **[Map terrain import guide](blender/docs/MAP_IMPORT.md)**
 - **[Native ERF geometry export guide](blender/docs/ERF-EXPORT.md)**
 - [Format research and support boundaries](blender/FORMAT.md)
 - [Multi-mech rig validation](blender/MULTI-MECH-REVIEW.md)
@@ -57,3 +58,7 @@ Atlas's torso ERF declares its shape two bytes shorter than the parsed data. R18
 Selecting a category/folder with only ERF geometry now switches Resource type to Geometry automatically. Text search never switches types. `buildings/vehicle_hangar2` has two ERFs and no `.contents` in the tested archives; choose `vehicle_hangar2.erf` for the main building or `vehicle_hangar2_light.erf` for its light geometry. The standalone importer does not infer assembly from neighboring files.
 
 Real-archive Blender 5.1 tests: Atlas imports 23 meshes including 3 torso/face sections and 5 textures; 17 unchanged ERFs remain byte-identical on export. `satelite_control` imports 3 meshes with `textures/bisat1.tga`; the hangar's main geometry uses `textures/biair1.tga`, and its light uses `textures/runninglight.tga`. The satellite building's missing-texture report was not reproduced with these archives. Import/reload messages now include missing reference names, searched paths or lookup/decode errors. If your installation still fails, provide Copy diagnostics and its resource bundle. No live-game validation performed.
+
+## R19: textured map terrain
+
+Choose **Resource type → Map terrain** in the installation browser to import supported world grids and their zone meshes. Tested on URBAN01, URBAN02, and URBAN05: each imports 16 zones, 14,918 triangles, and 16 packed base textures. This imports terrain only; mission objects, vegetation, water effects and native map export remain unsupported. See the [map guide](blender/docs/MAP_IMPORT.md) for instructions, omissions and validation. Existing mech ERF parsing/export is unchanged.

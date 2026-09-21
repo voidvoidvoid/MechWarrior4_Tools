@@ -2,7 +2,7 @@
 bl_info = {
     'name': 'MechWarrior 4 Animation Tools',
     'author': 'MW4 Mercenaries Decompilation Project',
-    'version': (0, 18, 0),
+    'version': (0, 19, 0),
     'blender': (5, 1, 0),
     'location': 'File > Import/Export; 3D View > Sidebar > MW4',
     'description': 'Import MW4 asset hierarchies and ERFs; edit/export geometry and MW4ANIM Actions',
@@ -40,7 +40,7 @@ if 'CLASSES' in globals():
             bpy.utils.unregister_class(old_class)
 
 for module_name in ('codec', 'helm', 'archives', 'embedded', 'hierarchy', 'erf',
-                    'rig', 'animscript', 'meshes', 'textures', 'animation_ui', 'resource_browser', 'game_import', 'erf_write', 'mesh_export', 'assets'):
+                    'rig', 'animscript', 'meshes', 'textures', 'animation_ui', 'resource_browser', 'terrain', 'game_import', 'erf_write', 'mesh_export', 'assets'):
     module = sys.modules.get(__name__ + '.' + module_name)
     if module is not None: importlib.reload(module)
 from . import codec, rig, game_import, meshes, textures, animation_ui, mesh_export, assets
@@ -342,15 +342,19 @@ class MW4ANIM_PT_tools(bpy.types.Panel):
         layout.operator(MW4ANIM_OT_import.bl_idname,text='Import raw channels (diagnostic)')
         root = clip_root(context.active_object)
         box = layout.box()
-        box.label(text='Textures · R18')
+        texture_target = textures.texture_root(context.active_object)
+        box.label(text='Textures · R19')
         box.operator(textures.MW4ANIM_OT_textures.bl_idname, text='Load / Reload Textures from MW4')
         box.operator(textures.MW4ANIM_OT_material_preview.bl_idname)
-        if root:
-            box.label(text=root.get('mw4_texture_status', 'Textures have not been loaded for this mech'))
-            if not textures.material_references(root):
-                box.label(text='This rig has no mesh texture references', icon='INFO')
+        if texture_target:
+            box.label(text=texture_target.get('mw4_texture_status', 'Textures have not been loaded for this asset'))
+            if not textures.material_references(texture_target):
+                box.label(text='This asset has no mesh texture references', icon='INFO')
         else:
             box.label(text='Select an imported MW4 armature or mesh', icon='INFO')
+        if texture_target and texture_target.get('mw4_map'):
+            layout.label(text=f"Terrain: {texture_target.get('mw4_mesh_count',0)} zone meshes")
+            layout.label(text='Terrain only; mission placement is not imported.')
         if root and 'mw4_hierarchy' in root:
             layout.label(text=f"{len(root.data.bones)} joints · {root.get('mw4_mesh_count',0)} mesh objects")
             if 'mw4_resource_bundle' in root:
@@ -358,7 +362,7 @@ class MW4ANIM_PT_tools(bpy.types.Panel):
             if 'mw4_geometry_count' in root:
                 layout.label(text=f"{root['mw4_geometry_count']} ERF resources collected")
             box = layout.box()
-            box.label(text='Animations · R18')
+            box.label(text='Animations · R19')
             available = len(animation_ui.actions_for(root))
             box.label(text=f'{available} compatible animations available')
             if 'mw4_animation_discovered' in root:

@@ -24,7 +24,8 @@ def label(value):
 def filter_rows(rows,kind='CONTENTS',group=ALL,subfolder=ALL,query=''):
     suffix='.contents' if kind=='CONTENTS' else '.erf'
     words=normalized(query).split()
-    return [i for i,r in enumerate(rows) if normalized(r['name']).endswith(suffix)
+    return [i for i,r in enumerate(rows) if ((bool(r.get('map_root')) if kind=='MAP' else
+            normalized(r['name']).endswith(suffix) and not r.get('map_root')))
         and (group==ALL or category(r['name'])==group)
         and (subfolder==ALL or folder(r['name'])==subfolder)
         and all(word in normalized(r['name']) for word in words)]
