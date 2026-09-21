@@ -100,6 +100,7 @@ def attach(files,report,obj,context,include_cockpit=False):
     if obj.type!='ARMATURE' or 'mw4_hierarchy' not in obj:raise codec.FormatError('Select an imported MW4 armature')
     info=json.loads(obj['mw4_hierarchy'])
     items,errors=plans(files,report,info,include_cockpit)
+    format_warnings=[dict(w,source=part['source']) for part in items for w in part['decoded'].get('warnings',[])]
     globals_={}
     for node in info['nodes']:
         local=rig.affine(node['matrix'])
@@ -149,7 +150,7 @@ def attach(files,report,obj,context,include_cockpit=False):
     obj['mw4_rig_note']='Recovered hierarchy with rigid ERF parts; highest-detail intact geometry.'
     report['geometry_imported']=bool(obj['mw4_mesh_count'])
     report['mesh_import']={'created_objects':len(created),'existing_objects_skipped':skipped,
-        'total_objects':obj['mw4_mesh_count'],'errors':errors,'lod':0,'damage_variants':False,
+        'total_objects':obj['mw4_mesh_count'],'errors':errors,'format_warnings':format_warnings,'lod':0,'damage_variants':False,
         'textures':'UVs and names preserved; neutral preview materials, image files unavailable'}
     return report['mesh_import']
 
