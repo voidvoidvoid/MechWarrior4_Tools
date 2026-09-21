@@ -1,0 +1,108 @@
+{
+  "blender": "5.1.0",
+  "synthetic_uv_and_structure": true,
+  "nonterrain_shapes_preserve_surrounding_terrain": true,
+  "malformed_shape_extents_rejected": true,
+  "truncated_and_trailing_data_rejected": true,
+  "explicit_archive_texture_preference": true,
+  "maps": [
+    {
+      "map": "alpine01",
+      "zones": 9,
+      "triangles": 40374,
+      "packed_textures": 9,
+      "omission_counts": {
+        "MLRCulturShape": 454,
+        "MLR_Water": 36
+      },
+      "skipped_shapes": 490,
+      "bounds": [
+        [
+          -1920.0,
+          1920.0
+        ],
+        [
+          -1920.0,
+          1920.0
+        ],
+        [
+          -5.595057882601395e-05,
+          254.92507934570312
+        ]
+      ]
+    },
+    {
+      "map": "urban01",
+      "zones": 16,
+      "triangles": 14918,
+      "packed_textures": 16,
+      "omission_counts": {
+        "MLR_Water": 10
+      },
+      "skipped_shapes": 10,
+      "bounds": [
+        [
+          -2560.0,
+          2560.0
+        ],
+        [
+          -2560.0,
+          2560.0
+        ],
+        [
+          43.039794921875,
+          68.6723403930664
+        ]
+      ]
+    },
+    {
+      "map": "urban02",
+      "zones": 16,
+      "triangles": 14918,
+      "packed_textures": 16,
+      "omission_counts": {
+        "MLR_Water": 10
+      },
+      "skipped_shapes": 10,
+      "bounds": [
+        [
+          -2560.0,
+          2560.0
+        ],
+        [
+          -2560.0,
+          2560.0
+        ],
+        [
+          43.039794921875,
+          68.6723403930664
+        ]
+      ]
+    },
+    {
+      "map": "urban05",
+      "zones": 16,
+      "triangles": 14918,
+      "packed_textures": 16,
+      "omission_counts": {
+        "MLR_Water": 10
+      },
+      "skipped_shapes": 10,
+      "bounds": [
+        [
+          -2560.0,
+          2560.0
+        ],
+        [
+          -2560.0,
+          2560.0
+        ],
+        [
+          43.039794921875,
+          68.6723403930664
+        ]
+      ]
+    }
+  ],
+  "bundle_reimport_and_blend_reopen": true
+}

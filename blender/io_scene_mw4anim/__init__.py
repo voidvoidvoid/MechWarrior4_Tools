@@ -2,7 +2,7 @@
 bl_info = {
     'name': 'MechWarrior 4 Animation Tools',
     'author': 'MW4 Mercenaries Decompilation Project',
-    'version': (0, 19, 0),
+    'version': (0, 20, 0),
     'blender': (5, 1, 0),
     'location': 'File > Import/Export; 3D View > Sidebar > MW4',
     'description': 'Import MW4 asset hierarchies and ERFs; edit/export geometry and MW4ANIM Actions',
@@ -343,7 +343,7 @@ class MW4ANIM_PT_tools(bpy.types.Panel):
         root = clip_root(context.active_object)
         box = layout.box()
         texture_target = textures.texture_root(context.active_object)
-        box.label(text='Textures · R19')
+        box.label(text='Textures · R20')
         box.operator(textures.MW4ANIM_OT_textures.bl_idname, text='Load / Reload Textures from MW4')
         box.operator(textures.MW4ANIM_OT_material_preview.bl_idname)
         if texture_target:
@@ -355,6 +355,8 @@ class MW4ANIM_PT_tools(bpy.types.Panel):
         if texture_target and texture_target.get('mw4_map'):
             layout.label(text=f"Terrain: {texture_target.get('mw4_mesh_count',0)} zone meshes")
             layout.label(text='Terrain only; mission placement is not imported.')
+            if texture_target.get('mw4_terrain_omissions'):
+                layout.label(text='Omitted: '+texture_target['mw4_terrain_omissions'],icon='INFO')
         if root and 'mw4_hierarchy' in root:
             layout.label(text=f"{len(root.data.bones)} joints · {root.get('mw4_mesh_count',0)} mesh objects")
             if 'mw4_resource_bundle' in root:
@@ -362,7 +364,7 @@ class MW4ANIM_PT_tools(bpy.types.Panel):
             if 'mw4_geometry_count' in root:
                 layout.label(text=f"{root['mw4_geometry_count']} ERF resources collected")
             box = layout.box()
-            box.label(text='Animations · R19')
+            box.label(text='Animations · R20')
             available = len(animation_ui.actions_for(root))
             box.label(text=f'{available} compatible animations available')
             if 'mw4_animation_discovered' in root:

@@ -302,7 +302,9 @@ class MW4ANIM_OT_game_model(bpy.types.Operator):
         message += f" {len(tx.get('images',[]))} textures; {len(tx.get('missing',[]))} unresolved materials."
         message += textures.problem_summary(report)
         if report.get('asset_mode')=='map_terrain':
-            message += f" Terrain only; {len(report.get('terrain_import',{}).get('skipped_shapes',[]))} unsupported shapes omitted."
+            message += ' Terrain only.'
+            omitted = obj.get('mw4_terrain_omissions','') if obj else ''
+            if omitted: message += ' Omitted: '+omitted+'.'
         format_warnings=report.get('mesh_import',{}).get('format_warnings',[])
         if format_warnings:message+=f' {len(format_warnings)} source length inconsistencies recovered; see diagnostics.'
         deps = report.get('animation_dependencies', {})

@@ -2,7 +2,7 @@
 
 Tools for inspecting and editing MechWarrior 4 resources.
 
-## Blender add-on — R19 (0.19.0)
+## Blender add-on — R20 (0.20.0)
 
 Import mech skeletons, supported polygon meshes, textures, and animations from a local MW4 installation into **Blender 5.1 or newer**. Preview and edit imported animations, then export native `.mw4anim` clips and supported edited mech `.erf` parts.
 
@@ -62,3 +62,7 @@ Real-archive Blender 5.1 tests: Atlas imports 23 meshes including 3 torso/face s
 ## R19: textured map terrain
 
 Choose **Resource type → Map terrain** in the installation browser to import supported world grids and their zone meshes. Tested on URBAN01, URBAN02, and URBAN05: each imports 16 zones, 14,918 triangles, and 16 packed base textures. This imports terrain only; mission objects, vegetation, water effects and native map export remain unsupported. See the [map guide](blender/docs/MAP_IMPORT.md) for instructions, omissions and validation. Existing mech ERF parsing/export is unchanged.
+
+## R20: Alpine map import fix
+
+Mixed terrain/culture shape records no longer abort terrain import. The supplied Alpine map imports 9 terrain zones, 40,374 triangles and 9 packed textures. Culture and water records remain omitted and are identified in the report/sidebar. Urban01/02/05 retain their previous terrain and texture counts. Shape parsing is bounded to each declared record to prevent malformed data from consuming the next element. See the [map guide](blender/docs/MAP_IMPORT.md) for scope and validation.

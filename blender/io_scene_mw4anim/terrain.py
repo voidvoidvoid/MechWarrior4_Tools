@@ -104,20 +104,33 @@ def zone(data):
             for _ in range(count): element(transforms, depth+1)
             return
         mlr(r)
-        size = r.u32(); end = r.p+size
-        if end > len(data): raise FormatError('Terrain shape extent exceeds resource')
-        if r.u32() != 0x4b: raise FormatError('Unsupported terrain shape class')
-        count = r.take(1)[0]
+        size = r.u32()
+        if size < 5: raise FormatError(f'Invalid terrain shape length {size} at {r.p-4:#x}')
+        # Every shape has a byte extent, regardless of its runtime class.
+        # Isolate that extent so malformed arrays cannot consume the next element.
+        shape_offset = r.p
+        shape = erf.Reader(r.take(size))
+        shape_kind = shape.u32()
+        if shape_kind != 0x4b:
+            skipped.append(dict(offset=offset,shape_offset=shape_offset,
+                shape_class=hex(shape_kind),bytes=size,
+                class_name='MLRCulturShape' if shape_kind == 0x74 else 'Unknown shape',
+                reason='Non-terrain shape omitted; original bytes retained in the resource bundle'))
+            return
+        count = shape.take(1)[0]
         shapes = []
-        for _ in range(count):
-            primitive_kind = r.u32()
+        for index in range(count):
+            primitive_kind = shape.u32()
             if primitive_kind != 0x68:
-                skipped.append(dict(offset=offset,primitive=hex(primitive_kind),
-                    reason='Non-Terrain2 shape omitted; water/other surface rendering is not supported'))
-                r.take(end-r.p)
+                skipped.append(dict(offset=offset,shape_offset=shape_offset,
+                    primitive=hex(primitive_kind),primitive_index=index,
+                    omitted_primitives=count-index,
+                    class_name='MLR_Water' if primitive_kind == 0x67 else 'Unknown primitive',
+                    reason='Unsupported primitive and remaining shape payload omitted'))
+                meshes.extend(shapes)
                 return
-            mesh = primitive(r); mesh['transforms'] = transforms; shapes.append(mesh)
-        if r.p != end: raise FormatError('Terrain shape length mismatch')
+            mesh = primitive(shape); mesh['transforms'] = transforms; shapes.append(mesh)
+        if shape.p != size: raise FormatError('Terrain shape length mismatch')
         meshes.extend(shapes)
     cells = 0
     while r.p < len(data):
@@ -170,7 +183,11 @@ def collect(catalog, root):
 
 def decode_files(files, report):
     grid(files[archives.normalized(report['source']['name'])])
-    decoded = [(n,zone(files[n])) for n in report['geometry_files']]
+    decoded = []
+    for name in report['geometry_files']:
+        try: decoded.append((name,zone(files[name])))
+        except (ValueError, KeyError) as exc:
+            raise FormatError(f'{name}: {exc}') from exc
     if not decoded or not any(z['meshes'] for n,z in decoded): raise FormatError('No supported terrain meshes')
     return decoded
 
@@ -223,7 +240,14 @@ def build(files, report, context, decoded=None):
     report['mesh_import'] = dict(total_objects=len(root.children),triangles=triangles,errors=[],skipped=skipped)
     report['terrain_import'] = dict(zones=len(decoded),cells=sum(z['cells'] for n,z in decoded),
         triangles=triangles,skipped_shapes=skipped)
-    if skipped: report['warnings'].append(f'{len(skipped)} non-Terrain2 shapes omitted; see terrain_import.skipped_shapes')
+    counts = {}
+    for item in skipped:
+        label = item['class_name']
+        counts[label] = counts.get(label,0)+1
+    report['terrain_import']['omission_counts'] = counts
+    summary = ', '.join(f'{count} {name}' for name,count in sorted(counts.items()))
+    root['mw4_terrain_omissions'] = summary
+    if skipped: report['warnings'].append('Omitted non-terrain records: '+summary+'; see terrain_import.skipped_shapes')
     report['geometry_imported'] = True
     # Maps exceed Blender's default viewport clipping distance.
     for screen in bpy.data.screens:
