@@ -1,7 +1,7 @@
 """Static animation dependency discovery; never executes game scripts.
 
 Supports the !NAME=value / $(NAME) declarations in supplied MW4 animscripts.
-Paths retain mech ownership; only the optional content/ database prefix aliases.
+Paths retain resource ownership; only the optional content/ database prefix aliases.
 """
 import re
 from .archives import normalized
@@ -81,7 +81,7 @@ def model_script_references(files):
     explicit paths rather than assuming a fixed offset for every model class.
     No bytecode execution or guessed mech-to-mech aliasing is involved.
     """
-    pattern = re.compile(rb'(?<![a-z0-9_\\/])(?:content[\\/])?mechs[\\/][a-z0-9_./\\ -]+\.animscript\x00', re.I)
+    pattern = re.compile(rb'(?<![a-z0-9_\\/])(?:content[\\/])?[a-z0-9_-]+[\\/][a-z0-9_./\\ -]+\.animscript\x00', re.I)
     result = []
     for name, data in sorted(files.items()):
         if not name.casefold().endswith('{gamemodel}'): continue
