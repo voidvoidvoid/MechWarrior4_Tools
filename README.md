@@ -2,7 +2,7 @@
 
 Tools for inspecting and editing MechWarrior 4 resources.
 
-## Blender add-on — R17 (0.16.0)
+## Blender add-on — R18 (0.16.0)
 
 Import mech skeletons, supported polygon meshes, textures, and animations from a local MW4 installation into **Blender 5.1 or newer**. Preview and edit imported animations, then export native `.mw4anim` clips and supported edited mech `.erf` parts.
 
@@ -49,3 +49,11 @@ The Import Resources dialog now has **Category**, **Folder**, and **Search paths
 Textures now retain explicitly qualified paths, recognize TGA/PNG/DDS extensions, and can resolve a bare name in a nested folder when only one matching path exists. Ambiguous basenames are reported instead of choosing an arbitrary material. Existing texture overrides still support exact paths.
 
 For an existing untextured object, select it and click **MW4 → Load / Reload Textures from MW4**, then select the installation directory. If textures remain missing, use **Copy diagnostics** and **Save resource bundle (.zip)** and supply both. The reported air-control-tower ERF has not been supplied, so its specific failure is not yet reproduced. The supplied archive's `bdmct1.tga` decodes and assigns successfully; the real jump-cradle asset also imports textured.
+
+## R18: Atlas torso/face and geometry-only folders
+
+Atlas's torso ERF declares its shape two bytes shorter than the parsed data. R18 accepts this metadata inconsistency only for a completely parsed final shape ending exactly at EOF. It retains a format warning, preserves original bytes on unchanged export, and writes a correct size after editing. Truncated shapes, trailing bytes and mismatched nonterminal LOD boundaries remain rejected. This differs from the earlier secondary-shape failure fixed in R14.
+
+Selecting a category/folder with only ERF geometry now switches Resource type to Geometry automatically. Text search never switches types. `buildings/vehicle_hangar2` has two ERFs and no `.contents` in the tested archives; choose `vehicle_hangar2.erf` for the main building or `vehicle_hangar2_light.erf` for its light geometry. The standalone importer does not infer assembly from neighboring files.
+
+Real-archive Blender 5.1 tests: Atlas imports 23 meshes including 3 torso/face sections and 5 textures; 17 unchanged ERFs remain byte-identical on export. `satelite_control` imports 3 meshes with `textures/bisat1.tga`; the hangar's main geometry uses `textures/biair1.tga`, and its light uses `textures/runninglight.tga`. The satellite building's missing-texture report was not reproduced with these archives. Import/reload messages now include missing reference names, searched paths or lookup/decode errors. If your installation still fails, provide Copy diagnostics and its resource bundle. No live-game validation performed.
