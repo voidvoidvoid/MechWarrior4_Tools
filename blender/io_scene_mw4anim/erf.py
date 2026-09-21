@@ -47,13 +47,14 @@ def primitive(r):
                 material_raw=material_raw,raw=r.data[start:r.p])
 
 
-def shape(r,size):
+def shape(r,size,terminal=False):
     end=r.p+size
-    if end>len(r.data):raise FormatError('Shape extent exceeds ERF')
+    if end>len(r.data) and not terminal:raise FormatError('Shape extent exceeds ERF')
     if r.u32()!=0x4b:raise FormatError('Unsupported MLR shape class')
     count=r.take(1)[0]
     meshes=[primitive(r) for _ in range(count)]
-    if r.p!=end:raise FormatError(f'Shape extent mismatch: {r.p:#x} != {end:#x}')
+    if r.p!=end and not (terminal and r.p==len(r.data)):
+        raise FormatError(f'Shape extent mismatch: {r.p:#x} != {end:#x}')
     return meshes
 
 
@@ -72,12 +73,17 @@ def loads(data):
     if not 1<=count<=256:raise FormatError('Invalid LOD count')
     if r.take(4)!=b'#RLM' or r.u32()!=18:raise FormatError('Expected MLR version 18')
     prefix=data[:r.p]
-    lods=[]
-    for _ in range(count):
+    lods=[];warnings=[]
+    for lod_index in range(count):
         lod_start=r.p
         distance=struct.unpack('<2f',r.take(8)) if kind==0x90 else (0,0)
-        size=r.u32();meshes=shape(r,size)
+        size=r.u32();shape_start=r.p
+        meshes=shape(r,size,terminal=lod_index==count-1)
+        actual_size=r.p-shape_start
+        if actual_size!=size:
+            warnings.append({'lod':lod_index,'offset':shape_start,'declared_size':size,
+                'actual_size':actual_size,'reason':'Final shape size differs; all primitives validate and end exactly at EOF'})
         lods.append(dict(distance=distance,meshes=meshes,raw=data[lod_start:r.p]))
     if r.p!=len(data):raise FormatError(f'Unconsumed ERF bytes at {r.p:#x} of {len(data):#x}')
     return dict(kind=kind,matrix=matrix,lods=lods,flags=flags,
-                bounds_offset=bounds_offset,prefix=prefix,original=bytes(data))
+                bounds_offset=bounds_offset,prefix=prefix,original=bytes(data),warnings=warnings)
