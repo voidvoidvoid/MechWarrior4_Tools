@@ -15,6 +15,7 @@ ui.configure_models(SimpleNamespace(archives=[{'relative':'props.mw4'}]),rows)
 class FilterProbe(bpy.types.PropertyGroup):
  reset_model=ui.MW4ANIM_OT_game_model.reset_model
  reset_category=ui.MW4ANIM_OT_game_model.reset_category
+ reset_scope=ui.MW4ANIM_OT_game_model.reset_scope
  __annotations__={k:v for k,v in ui.MW4ANIM_OT_game_model.__annotations__.items()
                   if k in ('category','subfolder','resource_type','model','search')}
 bpy.utils.register_class(FilterProbe)
@@ -29,6 +30,10 @@ p.search='';p.category='mechs';assert p.subfolder==browser.ALL and p.model=='1'
 p.resource_type='CONTENTS';assert p.model=='0'
 p.category='vehicles';assert p.model=='4'
 p.category=browser.ALL;assert len(ui.model_items(p,None))==2
+p.category='missions';assert p.resource_type=='ERF'
+p.subfolder='missions/desert';assert p.model=='2'
+p.resource_type='CONTENTS';assert p.model=='__NONE__'
+p.subfolder='missions/arctic';assert p.resource_type=='ERF' and p.model=='3'
 assert {item[0] for item in ui.category_items(p,None)}=={browser.ALL,browser.ROOT,'mechs','missions','vehicles'}
 # Returned enum strings/items persist across calls (Blender dynamic enum lifetime).
 assert ui.model_items(p,None) is ui.model_items(p,None)
