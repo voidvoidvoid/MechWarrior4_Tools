@@ -1,0 +1,10 @@
+{
+  "blender": "5.1.0",
+  "synthetic_nonmech_hierarchies": 3,
+  "synthetic_standalone_erfs": 3,
+  "edited_geometry_roundtrip": true,
+  "direct_import_and_zip_export": true,
+  "save_reopen": true,
+  "unsupported_class_rejected_before_creation": true,
+  "real_nonmech_assets_tested": false
+}
