@@ -30,7 +30,7 @@ def read_records(data, parent, source):
         if end < 0:
             raise FormatError(f'{source}: unterminated node name')
         name = record[152:end].decode('ascii')
-        if not re.fullmatch(r'(?:joint|site)_[A-Za-z0-9_]+',name):
+        if not re.fullmatch(r'[A-Za-z0-9_ .-]{1,63}',name):
             raise FormatError(f'{source}: unexpected node name {name!r}')
         values = struct.unpack_from('<12f',record,28)
         if not all(math.isfinite(v) for v in values):
