@@ -88,3 +88,5 @@ blender --background --python tests/test_erf_export.py -- "C:/MW4-test/Uller Res
 ```
 
 Checks exact no-op resource bytes, isolated edits, UV/topology splitting, bounds/planes, lower-LOD preservation, pose exclusion, exporter operators, failed-write preservation, save/reopen stability, and native animation export. It does not launch MW4.
+
+R16: `assets.py` supplies standalone ERF UI/container metadata; `archives.erf_bundle` validates standalone geometry without a Blender dependency. `tests/test_other_assets.py` runs synthetic non-mech discovery/import/export tests using Blender Python. Real non-mech compatibility is not established by synthetic fixtures.
