@@ -28,7 +28,7 @@ A geometry export does not include animation edits or modifications to texture i
 7. Open **N → MW4 → Native Geometry Export**.
 8. Choose either:
    - **Export selected part (.erf)**: select a mesh part; writes its complete original ERF resource, including edits to other imported primitives sharing that source ERF.
-   - **Export mech ERFs (.zip)**: select the mech or a part; writes all original ERF resources represented by its imported mesh objects, with an export manifest.
+   - **Export asset ERFs (.zip)**: select the mech or a part; writes all original ERF resources represented by its imported mesh objects, with an export manifest.
 
 Equivalent entries are in **File → Export**. Moving or posing the armature in the scene does not alter exported part coordinates. Mesh-object transforms relative to the armature are baked into the native vertices; mirrored/singular transforms are rejected. The exporter uses base mesh data rather than the evaluated animated mesh.
 
@@ -78,3 +78,5 @@ Validation on Blender 5.1 and 5.2 with the external Uller resource bundle:
 - A native walking clip still exports byte-identically after geometry export.
 
 **No live-game test has been performed.** Format round trips and reference-source agreement establish the tested serializer behavior, not universal compatibility with every MW4/MekTek build. Test scripts require externally supplied game resources; none are distributed. See `tests/test_erf_export.py` and `validation/erf-export51.json` / `erf-export52.json`.
+
+R16 extends this same writer to supported non-mech hierarchies and standalone ERFs. See [other assets](OTHER-ASSETS.md).
