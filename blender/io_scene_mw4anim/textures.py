@@ -105,6 +105,24 @@ def collect(catalog, files, report, refs=None, overrides=None):
     return report['texture_resources']
 
 
+def problem_summary(report):
+    """Surface actionable texture failures in the operator report as well as JSON."""
+    tx=report.get('texture_import',{})
+    lookup=report.get('texture_resources',{})
+    pieces=[]
+    missing=tx.get('missing',[])
+    if missing:pieces.append('Missing: '+', '.join(missing[:4])+(' …' if len(missing)>4 else ''))
+    failures=lookup.get('errors',[])+tx.get('errors',[])
+    if failures:
+        first=failures[0]
+        pieces.append('Texture error: '+first.get('reference','')+': '+first.get('error',''))
+    elif missing:
+        entry=next((e for e in lookup.get('missing',[]) if e['reference'] in missing),None)
+        if entry:pieces.append('Not found: '+', '.join(entry.get('searched',[])[:4]))
+        elif 'texture_resources' not in report:pieces.append('No installation texture lookup recorded; use Load / Reload Textures from MW4')
+    return (' '+'. '.join(pieces)+'.') if pieces else ''
+
+
 def material_references(root):
     return sorted({slot.material['mw4_texture_reference']
         for obj in root.children_recursive if obj.type == 'MESH'
@@ -247,7 +265,7 @@ class MW4ANIM_OT_textures(bpy.types.Operator):
             self.report({'ERROR'}, str(exc)); return {'CANCELLED'}
         errors = len(result['errors']) + len(report['texture_resources']['errors'])
         self.report({'WARNING'} if result['missing'] or errors else {'INFO'},
-            f"{len(result['images'])} textures packed; {len(result['missing'])} unresolved materials; {errors} errors. Use Material Preview to view textures.")
+            f"{len(result['images'])} textures packed; {len(result['missing'])} unresolved materials; {errors} errors. Use Material Preview to view textures."+problem_summary(report))
         return {'FINISHED'}
 
 
