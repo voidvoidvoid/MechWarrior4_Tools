@@ -23,7 +23,9 @@ def curve_fingerprint(curves):
     return hashlib.sha256(json.dumps(rows).encode()).hexdigest()
 
 def build_armature(filepath,context):
-    info = hierarchy.load_hierarchy(filepath)
+    return build_from_info(hierarchy.load_hierarchy(filepath), context)
+
+def build_from_info(info, context):
     data = bpy.data.armatures.new(info['name']+' · MW4 Skeleton')
     obj = bpy.data.objects.new(info['name']+' · MW4 Rig',data)
     context.collection.objects.link(obj)
