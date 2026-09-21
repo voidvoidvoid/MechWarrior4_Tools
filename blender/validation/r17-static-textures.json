@@ -1,0 +1,11 @@
+{
+  "blender": "5.1.0",
+  "qualified_paths": true,
+  "unique_basename": true,
+  "ambiguous_basename_rejected": true,
+  "explicit_directories_preserved": true,
+  "static_material_images_packed": true,
+  "tower_erf_tested": false,
+  "real_bdmct1_decoded_and_assigned": true,
+  "real_jump_cradle_textured": true
+}
