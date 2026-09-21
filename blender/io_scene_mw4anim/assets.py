@@ -40,7 +40,11 @@ class MW4ANIM_OT_erf_import(bpy.types.Operator):
             if obj is None:raise ValueError('ERF import failed; see resource report')
         except (OSError,ValueError,RuntimeError) as exc:
             self.report({'ERROR'},str(exc));return {'CANCELLED'}
-        self.report({'INFO'},f"{obj['mw4_mesh_count']} mesh objects; standalone geometry only")
+        tx=report.get('texture_import',{})
+        missing=len(tx.get('missing',[]));errors=len(tx.get('errors',[]))+len(report.get('texture_resources',{}).get('errors',[]))
+        message=f"{obj['mw4_mesh_count']} mesh objects; {len(tx.get('images',[]))} textures, {missing} missing, {errors} errors"
+        if missing or errors:message+='; use Load / Reload Textures from MW4 and Copy diagnostics'
+        self.report({'WARNING'} if missing or errors else {'INFO'},message)
         return {'FINISHED'}
 
 
