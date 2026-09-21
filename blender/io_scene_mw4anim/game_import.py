@@ -8,16 +8,38 @@ import zipfile
 
 import bpy
 from bpy_extras.io_utils import ExportHelper
-from . import archives, codec, hierarchy, rig, meshes, textures, animscript, embedded, animation_ui
+from . import archives, codec, hierarchy, rig, meshes, textures, animscript, embedded, animation_ui, resource_browser
 
 _catalog = None
 _model_rows = []
 _model_items = []
+_category_items = [(resource_browser.ALL,'All categories','Show all resource paths',0)]
+_folder_items = {resource_browser.ALL:[(resource_browser.ALL,'All folders','Show all folders',0)]}
+_filtered_items = {}
+
+
+def configure_models(catalog, rows):
+    global _catalog, _model_rows, _model_items, _category_items, _folder_items
+    _catalog=catalog;_model_rows=rows
+    _model_items=[(str(i),r['name'].replace('\\','/')+' — '+catalog.archives[r['archive']]['relative'],
+        'Import this resource and collect its dependencies',i) for i,r in enumerate(rows)]
+    _category_items,_folder_items=resource_browser.choices(rows)
+    _filtered_items.clear()
+
+
+def category_items(self,context):return _category_items
+
+def folder_items(self,context):
+    return _folder_items.get(getattr(self,'category',resource_browser.ALL),_folder_items[resource_browser.ALL])
 
 
 def model_items(self, context):
-    kind=getattr(self,'resource_type','CONTENTS')
-    return [item for item in _model_items if _model_rows[int(item[0])]['name'].lower().endswith('.contents' if kind=='CONTENTS' else '.erf')]
+    key=(getattr(self,'resource_type','CONTENTS'),getattr(self,'category',resource_browser.ALL),
+        getattr(self,'subfolder',resource_browser.ALL),getattr(self,'search',''))
+    if key not in _filtered_items:
+        indices=resource_browser.filter_rows(_model_rows,*key)
+        _filtered_items[key]=[_model_items[i] for i in indices] or [('__NONE__','No matching resources','Change the filters',-1)]
+    return _filtered_items[key]
 
 
 def preferences(context):
@@ -61,10 +83,7 @@ class MW4ANIM_OT_game_directory(bpy.types.Operator):
                 lambda i, n, path: wm.progress_update(100*i/max(1,n)))
             rows = sorted(catalog.models(), key=lambda r:(r['name'].casefold(),r['archive']))
             if not rows: raise archives.Error('No .contents or .erf resources found in readable archives')
-            _catalog = catalog; _model_rows = rows
-            _model_items = [(str(i), r['name'].replace('\\','/') + ' — ' +
-                catalog.archives[r['archive']]['relative'], 'Import this resource and collect its dependencies', i)
-                for i, r in enumerate(rows)]
+            configure_models(catalog, rows)
             if prefs: prefs.game_directory = str(catalog.root)
             selected = next((str(i) for i,r in enumerate(rows) if r['name'].lower().endswith('.contents')), '0')
             kind = 'CONTENTS' if rows[int(selected)]['name'].lower().endswith('.contents') else 'ERF'
@@ -185,8 +204,16 @@ class MW4ANIM_OT_game_model(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
     def reset_model(self, context):
         items=model_items(self,context)
-        if items:self.model=items[0][0]
+        self.model=items[0][0]
 
+    def reset_category(self,context):
+        self.subfolder=resource_browser.ALL
+        self.reset_model(context)
+
+    category:bpy.props.EnumProperty(name='Category',items=category_items,update=reset_category)
+    subfolder:bpy.props.EnumProperty(name='Folder',items=folder_items,update=reset_model)
+    search:bpy.props.StringProperty(name='Search paths',default='',update=reset_model,
+        description='Match all entered words in the resource path')
     resource_type: bpy.props.EnumProperty(name='Resource type',items=[
         ('CONTENTS','Model hierarchies (.contents)','Assembled assets using supported hierarchy records'),
         ('ERF','Geometry resources (.erf)','Standalone geometry; no recovered moving-part hierarchy')],
@@ -202,7 +229,13 @@ class MW4ANIM_OT_game_model(bpy.types.Operator):
 
     def draw(self, context):
         self.layout.prop(self, 'resource_type')
-        self.layout.prop(self, 'model')
+        self.layout.prop(self, 'category')
+        if self.category!=resource_browser.ALL:self.layout.prop(self, 'subfolder')
+        self.layout.prop(self, 'search')
+        items=model_items(self,context)
+        count=0 if items[0][0]=='__NONE__' else len(items)
+        self.layout.label(text=f'{count} matching resources')
+        row=self.layout.row();row.enabled=bool(count);row.prop(self,'model')
         if self.resource_type=='CONTENTS':
             self.layout.prop(self, 'import_animations')
             self.layout.prop(self, 'fps')
@@ -212,8 +245,8 @@ class MW4ANIM_OT_game_model(bpy.types.Operator):
             self.layout.label(text=f'{len(_catalog.warnings)} unreadable archives; details will be in the report.', icon='ERROR')
 
     def execute(self, context):
-        if _catalog is None or not self.model or self.model not in {item[0] for item in model_items(self,context)}:
-            self.report({'ERROR'}, 'Scan the game directory first');return {'CANCELLED'}
+        if _catalog is None or not self.model or self.model=='__NONE__' or self.model not in {item[0] for item in model_items(self,context)}:
+            self.report({'ERROR'}, 'Select a matching resource; change the category, folder or search filters if needed');return {'CANCELLED'}
         try:
             obj, report = import_model(_catalog, _model_rows[int(self.model)], context,
                                       self.import_animations, self.fps)
