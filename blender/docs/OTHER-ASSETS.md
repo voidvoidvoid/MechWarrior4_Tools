@@ -9,7 +9,7 @@ R16 removes the mech-directory restriction and adds standalone ERF import. Suppo
 3. Choose **Resource type**:
    - **Model hierarchies (.contents)** lists hierarchies throughout the installation, including outside `mechs/`. Choose this for an assembled asset. Supported hierarchy records retain their original parent relationships and rigid transforms.
    - **Geometry resources (.erf)** lists individual ERFs throughout the installation. Choose this for standalone geometry, or when the asset's hierarchy is unsupported.
-4. Search/select the original resource path and import. Installation imports use the existing archive decryption and texture lookup paths.
+4. In R17, choose **Category** and optionally **Folder**, then enter words in **Search paths** to narrow the list. These groups are derived from your installation's directory hierarchy, so mod-specific folders appear automatically. Select the original resource path and import. Installation imports use the existing archive decryption and texture lookup paths.
 
 The browser lists candidates from archive indexes. Listing is not a guarantee that the binary layout is supported; unsupported elements are rejected with a diagnostic.
 
@@ -50,3 +50,5 @@ Blender 5.1 regression checks cover synthetic building, vehicle and aircraft pat
 The real Uller bundle still passes all 19 unchanged-ERF checks and native animation export. Existing Solitaire dependency/partial-mesh and no-animation regressions also pass. No live-game test has been performed.
 
 To expand format coverage, provide one building, one ground vehicle and one aircraft resource bundle. Prefer **Save resource bundle (.zip)** after selecting each `.contents` asset, even if its hierarchy is unsupported: the decoded bundle/report is retained. If no hierarchy is listed, provide its original `.erf` files plus any associated `.contents`, `.data`, `.video`, named subresources, animation files and the resource report. Include the exact resource paths and game/MekTek version. Do not supply only screenshots; binary records are needed to distinguish new layouts from collection failures.
+
+R17 texture lookup preserves qualified resource paths and permits unique basename lookup for bare names in nested folders. It never silently discards an explicit directory or chooses among ambiguous paths. Texture diagnostics record how each reference was resolved. For the air control tower, provide the actual resource bundle if reload still fails; the available tower effect resource is not its ERF model.
