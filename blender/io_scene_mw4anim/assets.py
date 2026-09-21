@@ -43,7 +43,7 @@ class MW4ANIM_OT_erf_import(bpy.types.Operator):
         tx=report.get('texture_import',{})
         missing=len(tx.get('missing',[]));errors=len(tx.get('errors',[]))+len(report.get('texture_resources',{}).get('errors',[]))
         message=f"{obj['mw4_mesh_count']} mesh objects; {len(tx.get('images',[]))} textures, {missing} missing, {errors} errors"
-        if missing or errors:message+='; use Load / Reload Textures from MW4 and Copy diagnostics'
+        if missing or errors:message+=textures.problem_summary(report)+' Use Load / Reload Textures from MW4 and Copy diagnostics.'
         self.report({'WARNING'} if missing or errors else {'INFO'},message)
         return {'FINISHED'}
 
