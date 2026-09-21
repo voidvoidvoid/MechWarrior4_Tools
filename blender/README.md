@@ -1,12 +1,12 @@
-# MW4 Blender Animation Tools — R15
+# MW4 Blender Animation Tools — R16
 
-**Blender 5.1+; add-on version 0.15.0.** Tested with Blender 5.1.0 and 5.2.0. Future Blender versions have not all been tested.
+**Blender 5.1+; add-on version 0.16.0.** R16 tested with Blender 5.1.0; R15 was also tested with 5.2.0. Future Blender versions have not all been tested.
 
 The add-on imports a mech's recovered hierarchy, supported rigid mesh parts, detail textures, and animation clips. Imported clips are Blender Actions. Native animation export preserves unchanged clips byte-for-byte and supports editing existing position/quaternion tracks within the limits below.
 
 ## R15: native ERF geometry export
 
-Select an imported mech or part in Object Mode, then use **MW4 → Native Geometry Export → Export mech ERFs (.zip)** or **Export selected part (.erf)**. This writes supported edits into the original ERF resources, preserving native material states and lower LODs. The ZIP contains actual `.erf` files and a resource-path manifest; it is not a game `.mw4` archive.
+Select an imported mech or part in Object Mode, then use **MW4 → Native Geometry Export → Export asset ERFs (.zip)** or **Export selected part (.erf)**. This writes supported edits into the original ERF resources, preserving native material states and lower LODs. The ZIP contains actual `.erf` files and a resource-path manifest; it is not a game `.mw4` archive.
 
 Read the **[complete ERF export guide](docs/ERF-EXPORT.md)** before editing geometry. It covers rigid weights, topology/UV edits, per-primitive limits, unchanged lower LODs, oriented-box restrictions, and installing replacements with an external resource packer. Actual game loading still needs a live-game test.
 
@@ -32,13 +32,13 @@ Asset-free regressions reproduced the original error and verified absent, invali
 
 ## 1. Install or upgrade
 
-1. Download this repository using **Code → Download ZIP** and extract it. Open a terminal in the extracted repository folder and run `python scripts/build_blender_addon.py` (Python 3 required for this packaging step). This creates `downloads/MW4-Blender-Animation-R15.zip`. Alternatively, without Python, ZIP the **`blender/io_scene_mw4anim` folder itself**, keeping `io_scene_mw4anim/__init__.py` inside the ZIP. Do not ZIP its contents without the containing folder.
+1. Download this repository using **Code → Download ZIP** and extract it. Open a terminal in the extracted repository folder and run `python scripts/build_blender_addon.py` (Python 3 required for this packaging step). This creates `downloads/MW4-Blender-Animation-R16.zip`. Alternatively, without Python, ZIP the **`blender/io_scene_mw4anim` folder itself**, keeping `io_scene_mw4anim/__init__.py` inside the ZIP. Do not ZIP its contents without the containing folder.
 2. In Blender, open **Edit → Preferences → Add-ons**. Open the drop-down menu in that area and choose **Install from Disk**.
 3. Select the downloaded add-on ZIP. Enable **MechWarrior 4 Animation Tools** if it is not already enabled.
 4. Return to the main window. Put the pointer over the **3D Viewport** (the area displaying the scene) and press **N**.
 5. Open the **MW4** tab along the sidebar's right edge. The panel is named **MW4 Animation Tools**. The **Animation** tab is a separate Blender tab, not this add-on's panel.
 
-R15 shows **Textures · R15** and **Animations · R15**. If an older version remains visible, save your project and restart Blender. R10 and later also refresh cached add-on submodules during installation to address earlier upgrade failures.
+R16 shows **Textures · R16** and **Animations · R16**. If an older version remains visible, save your project and restart Blender. R10 and later also refresh cached add-on submodules during installation to address earlier upgrade failures.
 
 No separate Python installation, external Python packages, manual resource extraction, or running game is needed for normal use.
 
@@ -62,7 +62,7 @@ Successful texture loading switches existing 3D views to **Material Preview**. S
 For an existing imported mech:
 
 1. Select its armature or a mesh belonging to it.
-2. Open **N → MW4 → Textures · R15**.
+2. Open **N → MW4 → Textures · R16**.
 3. Click **Load / Reload Textures from MW4** and select the installation directory containing `resources/textures.mw4` (capitalization is not significant).
 4. Read the texture, missing-resource, and error counts. Click **Show Textures (Material Preview)** if needed.
 5. Save the `.blend`; successfully loaded images are packed inside it.
@@ -74,7 +74,7 @@ Texture names beginning with `@` are literal resource references. Body detail al
 ## 4. Choose and play animations
 
 1. Select the mech armature or one of its mesh parts.
-2. Open **N → MW4 → Animations · R15**; scroll down in the sidebar if needed.
+2. Open **N → MW4 → Animations · R16**; scroll down in the sidebar if needed.
 3. Check **compatible animations available**.
 4. Click the **Animation** field and choose a clip. **Previous** and **Next** cycle compatible imported Actions.
 5. Click **Play / Pause**. The Timeline frame number should advance.
@@ -153,3 +153,9 @@ The embedded bundle and source metadata are needed for recovery, provenance, and
 External samples covered Bushwacker, Crab, Daishi, Uller and Uziel with scope varying by sample. R12 recovery tests on Blender 5.1/5.2 recovered 160 Uller/Cougar clips on a textured zero-Action rig, verified switching and unchanged native exports, and preserved other Actions/materials during recovery. The supplied real texture archive was used for texture validation. Test inputs are not distributed.
 
 See [FORMAT.md](FORMAT.md), [MULTI-MECH-REVIEW.md](MULTI-MECH-REVIEW.md), [validation reports](validation/), and the [developer guide](docs/DEVELOPMENT.md). Historical development notes are retained separately and are not current installation instructions.
+
+## R16: other asset import/export
+
+The installation browser now includes non-mech `.contents` hierarchies and a separate `.erf` geometry list. Standalone ERFs can also be imported directly. Existing ERF export works on supported imported resources from buildings, vehicles and aircraft. Support is format-dependent; real non-mech samples and live-game validation are still needed.
+
+See [other asset workflows and support boundaries](docs/OTHER-ASSETS.md).
