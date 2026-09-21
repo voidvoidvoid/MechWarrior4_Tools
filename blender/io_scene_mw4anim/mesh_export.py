@@ -197,7 +197,7 @@ def atomic_write(path,data):
 
 class MW4ANIM_OT_export_erfs(bpy.types.Operator,ExportHelper):
     bl_idname='export_scene.mw4_erf_package'
-    bl_label='Export Mech ERF Replacements'
+    bl_label='Export Asset ERF Replacements'
     filename_ext='.zip'
     filter_glob:bpy.props.StringProperty(default='*.zip',options={'HIDDEN'})
     @classmethod
