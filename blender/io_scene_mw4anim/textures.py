@@ -35,17 +35,25 @@ def texture_key(name):
     return name[8:] if name.startswith('content/') else name
 
 
+IMAGE_SUFFIXES=('.tga','.png','.dds')
+
 def texture_paths(reference):
-    stem = texture_key(reference)
-    if not stem.startswith('textures/'): stem = 'textures/' + stem
-    return [stem] if stem.endswith(('.tga', '.png')) else [stem+'.tga', stem+'.png']
+    """Preserve qualified paths; bare engine names default to textures/."""
+    stem=texture_key(reference)
+    stems=[stem] if stem.startswith('textures/') else (
+        [stem,'textures/'+stem] if '/' in stem else ['textures/'+stem])
+    return [p for root in stems for p in ([root] if root.endswith(IMAGE_SUFFIXES)
+        else [root+suffix for suffix in IMAGE_SUFFIXES])]
 
 
 def collect(catalog, files, report, refs=None, overrides=None):
     index = {}
     for row in catalog.rows:
         index.setdefault(texture_key(row['name']), []).append(row)
-    mappings = {}; hints = {}; missing = []; errors = []
+    basenames={}
+    for key in index:
+        if key.endswith(IMAGE_SUFFIXES):basenames.setdefault(Path(key).name,[]).append(key)
+    mappings = {}; hints = {}; missing = []; errors = []; resolutions = {}
     overrides = overrides or {}
     def get(name):
         candidates = index.get(texture_key(name), [])
@@ -62,12 +70,21 @@ def collect(catalog, files, report, refs=None, overrides=None):
                 sha256=hashlib.sha256(data).hexdigest(), bytes=len(data)))
         return name
     for ref in refs if refs is not None else references(files):
-        names = texture_paths(overrides.get(ref, ref))
+        reference=overrides.get(ref,ref)
+        names = texture_paths(reference)
         try:
-            for path in names:
+            candidates=list(names)
+            # Only bare references may use a basename fallback. Never silently
+            # discard an explicit directory or choose the first duplicate name.
+            if not any(texture_key(n) in index for n in names) and '/' not in texture_key(reference):
+                matches=sorted({p for n in names for p in basenames.get(Path(n).name,[])})
+                if len(matches)>1:raise ValueError('Ambiguous texture basename; specify an exact override: '+', '.join(matches))
+                candidates.extend(matches)
+            for path in candidates:
                 actual = get(path)
                 if actual is not None:
                     mappings[ref] = actual
+                    resolutions[ref]={'resource':actual,'method':'exact_path' if path in names else 'unique_basename'}
                     hint = get(path+'{hint}')
                     if hint is not None: hints[ref] = hint
                     break
@@ -78,8 +95,8 @@ def collect(catalog, files, report, refs=None, overrides=None):
                         if Path(a['relative']).name.casefold() == 'textures.mw4']
     diagnostic_rows = [r for r in catalog.rows if r['archive'] in texture_archives]
     report['texture_resources'] = {'mapping': mappings, 'hint_mapping': hints,
-        'missing': missing, 'errors': errors,
-        'lookup': 'Full texture paths; optional content/ prefix, case and slash normalization',
+        'missing': missing, 'errors': errors, 'resolutions':resolutions,
+        'lookup': 'Exact qualified paths or textures/ engine names; unique basename fallback for bare names; TGA/PNG/DDS',
         'archive_diagnostics': {'texture_archives': [catalog.archives[i]['relative'] for i in texture_archives],
             'indexed_members': len(diagnostic_rows),
             'sample_image_names': [r['name'] for r in diagnostic_rows
