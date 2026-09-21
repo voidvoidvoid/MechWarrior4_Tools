@@ -80,3 +80,5 @@ Validation on Blender 5.1 and 5.2 with the external Uller resource bundle:
 **No live-game test has been performed.** Format round trips and reference-source agreement establish the tested serializer behavior, not universal compatibility with every MW4/MekTek build. Test scripts require externally supplied game resources; none are distributed. See `tests/test_erf_export.py` and `validation/erf-export51.json` / `erf-export52.json`.
 
 R16 extends this same writer to supported non-mech hierarchies and standalone ERFs. See [other assets](OTHER-ASSETS.md).
+
+R18 records and tolerates an inconsistent declared shape length only for a fully validated final shape ending exactly at EOF (observed on Atlas torso). Unchanged export retains the original declaration; edited export writes the calculated length. Other shape boundaries remain strict.
