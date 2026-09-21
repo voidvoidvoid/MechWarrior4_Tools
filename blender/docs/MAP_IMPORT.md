@@ -1,14 +1,14 @@
-# Map terrain import — R20
+# Map terrain import — R21
 
-R20 imports textured terrain from the supplied `ALPINE01.MW4`, `URBAN01.MW4`, `URBAN02.MW4`, and `URBAN05.MW4` archives. These normally live under `RESOURCE/MAPS` in a Mercenaries installation. Other maps are supported only when they use the same validated layout; unknown layouts produce an error.
+R21 imports textured terrain from the supplied `ALPINE01.MW4`, `URBAN01.MW4`, `URBAN02.MW4`, and `URBAN05.MW4` archives. These normally live under `RESOURCE/MAPS` in a Mercenaries installation. Other maps are supported only when they use the same validated layout; unknown layouts produce an error.
 
 ## Import a map
 
-1. Install the R20 add-on ZIP and restart Blender after upgrading.
+1. Install the R21 add-on ZIP and restart Blender after upgrading.
 2. Open the 3D View sidebar with **N**, select **MW4**, and click **Import from MW4 Installation**.
 3. Select the installation directory, its `RESOURCE` directory, or a folder containing your map `.mw4` files.
 4. In **Import MW4 Model Resources**, choose **Resource type → Map terrain**, **Category → Maps**, and the desired **Folder** (for example `maps/urban01`). Choose the map root and source archive in **Model / source archive**. Do not choose individual `AA.erf` zone files under Geometry resources.
-5. Confirm the import. The selected terrain objects can be framed with **Numpad .** (View → Frame Selected). Use **Show Textures (Material Preview)** if necessary. R19 increases the viewport clipping distance to accommodate the map.
+5. Leave **Full close-view terrain textures** enabled for native-resolution composition from `composttexture`, or disable it for a faster far-texture import. Confirm the import. The selected terrain objects can be framed with **Numpad .** (View → Frame Selected). Use **Show Textures (Material Preview)** if necessary. R19 increases the viewport clipping distance to accommodate the map.
 
 Selecting a maps folder from a resource type with no matching entries also switches to Map terrain automatically. Search still only filters the currently selected type.
 
@@ -16,10 +16,10 @@ The map appears as a **MW4 Terrain** parent with one mesh per supported zone. It
 
 ## Current scope
 
-- Ground geometry and baked **base-level terrain textures** are imported. Alpine produces 9 zone objects, 40,374 triangles and 9 packed base textures. Each Urban sample produces 16 zone objects, 14,918 triangles, and 16 packed base textures, covering 5,120 × 5,120 native units.
+- Ground geometry and **full close-view terrain textures** are imported by default in R21. The optional far-texture mode retains the earlier behavior. Alpine produces 9 zone objects, 40,374 triangles and 9 packed base textures. Each Urban sample produces 16 zone objects, 14,918 triangles, and 16 packed base textures, covering 5,120 × 5,120 native units.
 - This is **not a complete mission/scene import**. Placed buildings, vegetation, units, mission logic, collision data, water effects, and runtime detail-texture blending are not reconstructed.
 - Non-terrain records are omitted and reported by class. MW4 identifies shape `0x74` as `MLRCulturShape` and primitive `0x67` as `MLR_Water`. Alpine contains 454 culture shape records and 36 water shape records; each Urban sample contains 10 water shape records. These counts refer to serialized records, not individual trees or objects. Ground geometry uses Terrain2 class `0x68`.
-- Texture LOD switching is not emulated. R19 uses the texture reference and its matching UV rectangle stored in each Terrain2 primitive. Fine detail may therefore look softer than the game at close range.
+- Texture LOD switching is not emulated. R21 composes the native-resolution FGD layers into textures matching the existing terrain UV rectangles; [full texture details](COMPOST_TEXTURES.md). Disabling full textures uses the stored baked base-level image.
 - Native map export is **not supported**. Terrain roots are excluded from the existing animation/ERF exporters. Those exporters continue to serve supported mech and other asset hierarchies.
 - Original `.mw4` archives are read-only. No game data ships with this add-on.
 

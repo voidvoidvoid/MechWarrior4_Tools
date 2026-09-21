@@ -1,6 +1,6 @@
-# MW4 Blender Animation Tools — R20
+# MW4 Blender Animation Tools — R21
 
-**Blender 5.1+; add-on version 0.20.0.** R20 tested with Blender 5.1.0; R15 was also tested with 5.2.0. Future Blender versions have not all been tested.
+**Blender 5.1+; add-on version 0.21.0.** R21 tested with Blender 5.1.0; R15 was also tested with 5.2.0. Future Blender versions have not all been tested.
 
 The add-on imports a mech's recovered hierarchy, supported rigid mesh parts, detail textures, and animation clips. Imported clips are Blender Actions. Native animation export preserves unchanged clips byte-for-byte and supports editing existing position/quaternion tracks within the limits below.
 
@@ -32,13 +32,13 @@ Asset-free regressions reproduced the original error and verified absent, invali
 
 ## 1. Install or upgrade
 
-1. Download this repository using **Code → Download ZIP** and extract it. Open a terminal in the extracted repository folder and run `python scripts/build_blender_addon.py` (Python 3 required for this packaging step). This creates `downloads/MW4-Blender-Animation-R20.zip`. Alternatively, without Python, ZIP the **`blender/io_scene_mw4anim` folder itself**, keeping `io_scene_mw4anim/__init__.py` inside the ZIP. Do not ZIP its contents without the containing folder.
+1. Download this repository using **Code → Download ZIP** and extract it. Open a terminal in the extracted repository folder and run `python scripts/build_blender_addon.py` (Python 3 required for this packaging step). This creates `downloads/MW4-Blender-Animation-R21.zip`. Alternatively, without Python, ZIP the **`blender/io_scene_mw4anim` folder itself**, keeping `io_scene_mw4anim/__init__.py` inside the ZIP. Do not ZIP its contents without the containing folder.
 2. In Blender, open **Edit → Preferences → Add-ons**. Open the drop-down menu in that area and choose **Install from Disk**.
 3. Select the downloaded add-on ZIP. Enable **MechWarrior 4 Animation Tools** if it is not already enabled.
 4. Return to the main window. Put the pointer over the **3D Viewport** (the area displaying the scene) and press **N**.
 5. Open the **MW4** tab along the sidebar's right edge. The panel is named **MW4 Animation Tools**. The **Animation** tab is a separate Blender tab, not this add-on's panel.
 
-R20 shows **Textures · R20** and **Animations · R20**. If an older version remains visible, save your project and restart Blender. R10 and later also refresh cached add-on submodules during installation to address earlier upgrade failures.
+R21 shows **Textures · R21** and **Animations · R21**. If an older version remains visible, save your project and restart Blender. R10 and later also refresh cached add-on submodules during installation to address earlier upgrade failures.
 
 No separate Python installation, external Python packages, manual resource extraction, or running game is needed for normal use.
 
@@ -62,7 +62,7 @@ Successful texture loading switches existing 3D views to **Material Preview**. S
 For an existing imported mech:
 
 1. Select its armature or a mesh belonging to it.
-2. Open **N → MW4 → Textures · R20**.
+2. Open **N → MW4 → Textures · R21**.
 3. Click **Load / Reload Textures from MW4** and select the installation directory containing `resources/textures.mw4` (capitalization is not significant).
 4. Read the texture, missing-resource, and error counts. Click **Show Textures (Material Preview)** if needed.
 5. Save the `.blend`; successfully loaded images are packed inside it.
@@ -74,7 +74,7 @@ Texture names beginning with `@` are literal resource references. Body detail al
 ## 4. Choose and play animations
 
 1. Select the mech armature or one of its mesh parts.
-2. Open **N → MW4 → Animations · R20**; scroll down in the sidebar if needed.
+2. Open **N → MW4 → Animations · R21**; scroll down in the sidebar if needed.
 3. Check **compatible animations available**.
 4. Click the **Animation** field and choose a clip. **Previous** and **Next** cycle compatible imported Actions.
 5. Click **Play / Pause**. The Timeline frame number should advance.
@@ -183,3 +183,7 @@ Real-archive Blender 5.1 tests: Atlas imports 23 meshes including 3 torso/face s
 ## R20: Alpine and mixed terrain records
 
 Fixed Alpine's **Unsupported terrain shape class** failure: culture shape records can coexist with terrain meshes and are now omitted explicitly instead of aborting the map. Alpine imports 9 terrain meshes and 9 packed textures. Culture and water remain outside the terrain-only import scope; omission counts appear in the sidebar and import report. Install R20, restart Blender, and reimport the map using **Resource type: Map terrain**. See [map import details](docs/MAP_IMPORT.md).
+
+## R21: full terrain textures
+
+**Full close-view terrain textures** is enabled by default for map import. R21 assembles the map’s original `composttexture` layers into packed 2048×2048 zone textures for the supplied maps. To upgrade an existing terrain import, select its parent or a child mesh and use **Load / Reload Textures from MW4**. Full composition takes longer and uses more memory/storage than far textures. See the [full terrain texture guide](docs/COMPOST_TEXTURES.md).

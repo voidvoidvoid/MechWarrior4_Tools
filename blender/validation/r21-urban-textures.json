@@ -1,0 +1,25 @@
+{
+  "blender": "5.1.0",
+  "bid_formats_and_extents": true,
+  "blend_formulas": true,
+  "mirrors_and_scaled_masks": true,
+  "cropped_composition": true,
+  "explicit_far_fallback": true,
+  "png_decodes_correctly": true,
+  "reload_upgrades_existing_map": true,
+  "map": "urban01",
+  "zones": 16,
+  "source_bid_images": 61,
+  "placements": 7805,
+  "image_dimensions": [
+    2048,
+    2048
+  ],
+  "fgd_dimensions": [
+    8192,
+    8192
+  ],
+  "generated_bytes": 50888409,
+  "packed_materials": true,
+  "bundle_and_blend_reopen": true
+}

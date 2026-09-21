@@ -2,12 +2,13 @@
 
 Tools for inspecting and editing MechWarrior 4 resources.
 
-## Blender add-on — R20 (0.20.0)
+## Blender add-on — R21 (0.21.0)
 
 Import mech skeletons, supported polygon meshes, textures, and animations from a local MW4 installation into **Blender 5.1 or newer**. Preview and edit imported animations, then export native `.mw4anim` clips and supported edited mech `.erf` parts.
 
 - **[Get the source ZIP](https://github.com/voidvoidvoid/MechWarrior4_Tools/archive/refs/heads/main.zip)**, extract it, then build the installer as described below.
 - **[Installation and complete user guide](blender/README.md)**
+- **[Full terrain texture guide](blender/docs/COMPOST_TEXTURES.md)**
 - **[Map terrain import guide](blender/docs/MAP_IMPORT.md)**
 - **[Native ERF geometry export guide](blender/docs/ERF-EXPORT.md)**
 - [Format research and support boundaries](blender/FORMAT.md)
@@ -66,3 +67,7 @@ Choose **Resource type → Map terrain** in the installation browser to import s
 ## R20: Alpine map import fix
 
 Mixed terrain/culture shape records no longer abort terrain import. The supplied Alpine map imports 9 terrain zones, 40,374 triangles and 9 packed textures. Culture and water records remain omitted and are identified in the report/sidebar. Urban01/02/05 retain their previous terrain and texture counts. Shape parsing is bounded to each declared record to prevent malformed data from consuming the next element. See the [map guide](blender/docs/MAP_IMPORT.md) for scope and validation.
+
+## R21: full close-view terrain textures
+
+Map import now composes native-resolution textures from FGD placements and the map archive’s `textures/composttexture` BID colors, masks and lighting. Full textures are enabled by default. Existing map imports can be upgraded through **Load / Reload Textures from MW4**. The supplied maps produce 2048×2048 packed textures per zone rather than 256×256 far-view textures. See the [full texture guide](blender/docs/COMPOST_TEXTURES.md) for workflow, performance, validation and fallback behavior.

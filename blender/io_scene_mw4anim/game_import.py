@@ -8,7 +8,7 @@ import zipfile
 
 import bpy
 from bpy_extras.io_utils import ExportHelper
-from . import archives, codec, hierarchy, rig, meshes, textures, animscript, embedded, animation_ui, resource_browser, terrain
+from . import archives, codec, hierarchy, rig, meshes, textures, animscript, embedded, animation_ui, resource_browser, terrain, compost
 
 _catalog = None
 _model_rows = []
@@ -97,12 +97,19 @@ class MW4ANIM_OT_game_directory(bpy.types.Operator):
         return {'FINISHED'}
 
 
-def import_model(catalog, row, context, import_animations=True, fps=30):
+def import_model(catalog, row, context, import_animations=True, fps=30, full_terrain_textures=True):
     files, report = catalog.collect(row)
     if report.get('asset_mode') == 'map_terrain':
         decoded = terrain.decode_files(files, report)
         refs = sorted({m['texture'] for n,z in decoded for m in z['meshes'] if m['texture']})
         textures.collect(catalog, files, report, refs=refs, preferred_archive=row['archive'])
+        report['full_terrain_textures'] = bool(full_terrain_textures)
+        if full_terrain_textures:
+            wm=context.window_manager;wm.progress_begin(0,100)
+            try:
+                compost.prepare(catalog,files,report,decoded,row['archive'],
+                    lambda i,n,ref:wm.progress_update(100*i/max(1,n)))
+            finally:wm.progress_end()
     else:
         textures.collect(catalog, files, report)
     return import_resource_files(files, report, context, import_animations, fps, str(catalog.root))
@@ -114,6 +121,7 @@ def import_resource_files(files, report, context, import_animations=True, fps=30
         obj['mw4_game_directory'] = game_directory
         obj['mw4_archive_source'] = json.dumps(report['source'])
         tx = textures.apply(files, report, obj)
+        textures.terrain_status(report,obj)
         if tx['images']: textures.show_textures(context)
         report.update(imported_actions=0, imported_bones=0, complete=not report['errors'] and not report['terrain_import']['skipped_shapes'])
         save_import_bundle(files, report, context, obj)
@@ -255,6 +263,8 @@ class MW4ANIM_OT_game_model(bpy.types.Operator):
     model: bpy.props.EnumProperty(name='Model / source archive', items=model_items)
     import_animations: bpy.props.BoolProperty(name='Import animation Actions', default=True)
     fps: bpy.props.FloatProperty(name='Timeline FPS', default=30, min=1, max=240)
+    full_terrain_textures: bpy.props.BoolProperty(name='Full close-view terrain textures', default=True,
+        description='Compose native-resolution textures from FGD and CompostTexture layers; takes longer and uses more memory')
 
     def invoke(self, context, event):
         if _catalog is None:
@@ -279,10 +289,11 @@ class MW4ANIM_OT_game_model(bpy.types.Operator):
             self.layout.prop(self, 'import_animations')
             self.layout.prop(self, 'fps')
         if self.resource_type=='MAP':
+            self.layout.prop(self,'full_terrain_textures')
             self.layout.label(text='Terrain only: excludes mission objects, vegetation and water effects.')
         else:
             self.layout.label(text='Contents: assembled hierarchy. ERF: standalone geometry, no moving-part hierarchy.')
-        self.layout.label(text='Base terrain textures are loaded and packed automatically.' if self.resource_type=='MAP'
+        self.layout.label(text='Terrain textures are built and packed automatically.' if self.resource_type=='MAP'
             else 'Highest-detail intact parts; texture images loaded and packed automatically.')
         if _catalog and _catalog.warnings:
             self.layout.label(text=f'{len(_catalog.warnings)} unreadable archives; details will be in the report.', icon='ERROR')
@@ -292,7 +303,7 @@ class MW4ANIM_OT_game_model(bpy.types.Operator):
             self.report({'ERROR'}, 'Select a matching resource; change the category, folder or search filters if needed');return {'CANCELLED'}
         try:
             obj, report = import_model(_catalog, _model_rows[int(self.model)], context,
-                                      self.import_animations, self.fps)
+                                      self.import_animations, self.fps, self.full_terrain_textures)
         except (OSError, ValueError, RuntimeError, IndexError) as exc:
             self.report({'ERROR'}, str(exc));return {'CANCELLED'}
         message = (f"{report['imported_bones']} bones, {report['imported_actions']} Actions; "
@@ -305,12 +316,13 @@ class MW4ANIM_OT_game_model(bpy.types.Operator):
             message += ' Terrain only.'
             omitted = obj.get('mw4_terrain_omissions','') if obj else ''
             if omitted: message += ' Omitted: '+omitted+'.'
+            message += ' '+obj.get('mw4_terrain_texture_status','')
         format_warnings=report.get('mesh_import',{}).get('format_warnings',[])
         if format_warnings:message+=f' {len(format_warnings)} source length inconsistencies recovered; see diagnostics.'
         deps = report.get('animation_dependencies', {})
         if deps.get('missing'):
             message += f" {len(deps['missing'])} referenced animation files missing."
-        texture_problem = deps.get('missing') or deps.get('errors') or tx.get('missing') or tx.get('errors') or report.get('texture_resources',{}).get('errors')
+        texture_problem = report.get('terrain_composition',{}).get('errors') or deps.get('missing') or deps.get('errors') or tx.get('missing') or tx.get('errors') or report.get('texture_resources',{}).get('errors')
         self.report({'INFO'} if report['complete'] and not texture_problem else {'WARNING'}, message)
         return {'FINISHED'}
 

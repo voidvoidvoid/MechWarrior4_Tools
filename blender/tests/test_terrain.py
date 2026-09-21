@@ -69,7 +69,7 @@ if len(sys.argv)>1:
     assert selected
     assert len(resource_browser.filter_rows(rows,'MAP'))==len(selected)
     for row in selected:
-        root,report=game_import.import_model(cat,row,bpy.context)
+        root,report=game_import.import_model(cat,row,bpy.context,full_terrain_textures=False)
         tx=report['texture_import']
         grid=report['terrain_grid'];expected_zones=grid['columns']*grid['rows']
         assert len(root.children)==expected_zones and len(tx['images'])==expected_zones and not tx['missing'] and not tx['errors']

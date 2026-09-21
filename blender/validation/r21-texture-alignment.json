@@ -1,0 +1,31 @@
+{
+  "method": "Pillow RGB resize with default bicubic filter; compare channels on 0-255 scale",
+  "maps": {
+    "alpine01": {
+      "zone": "aa",
+      "composite_dimensions": [
+        2048,
+        2048
+      ],
+      "far_dimensions": [
+        256,
+        256
+      ],
+      "downsampled_correlation": 0.9838563286070071,
+      "mean_absolute_channel_difference": 3.4587198893229165
+    },
+    "urban01": {
+      "zone": "aa",
+      "composite_dimensions": [
+        2048,
+        2048
+      ],
+      "far_dimensions": [
+        256,
+        256
+      ],
+      "downsampled_correlation": 0.9856583712266017,
+      "mean_absolute_channel_difference": 3.2223358154296875
+    }
+  }
+}

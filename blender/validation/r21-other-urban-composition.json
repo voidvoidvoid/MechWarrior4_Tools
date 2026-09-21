@@ -1,0 +1,31 @@
+{
+  "scope": "Pure composition and archive resolution; full Blender integration tested separately on Alpine01 and Urban01",
+  "maps": [
+    {
+      "map": "urban02",
+      "status": "full",
+      "images": 16,
+      "inputs": 61,
+      "dimensions": [
+        [
+          2048,
+          2048
+        ]
+      ],
+      "generated_bytes": 49466535
+    },
+    {
+      "map": "urban05",
+      "status": "full",
+      "images": 16,
+      "inputs": 61,
+      "dimensions": [
+        [
+          2048,
+          2048
+        ]
+      ],
+      "generated_bytes": 48103873
+    }
+  ]
+}

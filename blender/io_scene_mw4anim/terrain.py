@@ -80,7 +80,7 @@ def primitive(r):
     return dict(vertices=vertices,uv=uv,texture=texture,
                 triangles=[indices[i:i+3] for i in range(0,count,3)],
                 detail=detail,detail_params=detail_params,cell=cell,
-                texture_level=level,available=available)
+                texture_level=level,available=available,texture_bounds=bounds[level])
 
 
 def zone(data):
@@ -176,7 +176,7 @@ def collect(catalog, root):
         add(row); report['geometry_files'].append(archives.normalized(row['name']))
     if len(set(report['geometry_files'])) != total: raise FormatError('Duplicate terrain zone handles')
     report['terrain_grid'] = info
-    report['scope'] = 'Terrain geometry and baked base textures only; no mission placement, vegetation, water effects or native map export.'
+    report['scope'] = 'Terrain geometry and textures only; no mission placement, vegetation, water effects or native map export.'
     report['warnings'].append(report['scope'])
     return files, report
 

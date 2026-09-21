@@ -1,0 +1,23 @@
+{
+  "blender": "5.1.0",
+  "bid_formats_and_extents": true,
+  "blend_formulas": true,
+  "mirrors_and_scaled_masks": true,
+  "cropped_composition": true,
+  "png_decodes_correctly": true,
+  "map": "alpine01",
+  "zones": 9,
+  "source_bid_images": 15,
+  "placements": 660,
+  "image_dimensions": [
+    2048,
+    2048
+  ],
+  "fgd_dimensions": [
+    6144,
+    6144
+  ],
+  "generated_bytes": 74280899,
+  "packed_materials": true,
+  "bundle_and_blend_reopen": true
+}

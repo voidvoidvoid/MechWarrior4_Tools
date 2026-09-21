@@ -212,6 +212,18 @@ def apply(files, report, root):
 
 
 
+def terrain_status(report, root):
+    if not root.get('mw4_map'): return
+    composition=report.get('terrain_composition',{})
+    if composition.get('status')=='full':
+        sizes=sorted({str(i['width'])+'×'+str(i['height']) for i in composition['images']})
+        message='Full terrain textures: '+', '.join(sizes)+'; '+str(len(composition['source_images']))+' compost inputs'
+    elif composition.get('errors'):
+        message='Baked far textures only: '+composition['errors'][0]
+    else: message='Baked far textures only (full composition disabled)'
+    root['mw4_terrain_texture_status']=message
+
+
 def texture_root(obj):
     from . import clip_root
     current = obj
@@ -264,7 +276,18 @@ class MW4ANIM_OT_textures(bpy.types.Operator):
                     if a['relative'] == source_archive),None)
             collect(catalog, files, report, refs=material_references(root), overrides=overrides,
                     preferred_archive=preferred)
+            if root.get('mw4_map'):
+                from . import terrain,compost
+                explicit={k:v for k,v in report['texture_resources']['mapping'].items() if k in overrides}
+                wm=context.window_manager;wm.progress_begin(0,100)
+                try:
+                    compost.prepare(catalog,files,report,terrain.decode_files(files,report),preferred,
+                        lambda i,n,ref:wm.progress_update(100*i/max(1,n)),excluded_refs=overrides)
+                finally:wm.progress_end()
+                report['texture_resources']['mapping'].update(explicit)
+                report['full_terrain_textures']=True
             result = apply(files, report, root)
+            terrain_status(report,root)
             if text is not None:
                 packed = io.BytesIO(); archives.write_bundle(packed, files, report)
                 text.from_string(embedded.encode(packed.getvalue()))
@@ -278,9 +301,9 @@ class MW4ANIM_OT_textures(bpy.types.Operator):
             if prefs: prefs.game_directory = str(catalog.root)
         except (ValueError, OSError, RuntimeError, KeyError, zipfile.BadZipFile) as exc:
             self.report({'ERROR'}, str(exc)); return {'CANCELLED'}
-        errors = len(result['errors']) + len(report['texture_resources']['errors'])
+        errors = len(result['errors']) + len(report['texture_resources']['errors']) + len(report.get('terrain_composition',{}).get('errors',[]))
         self.report({'WARNING'} if result['missing'] or errors else {'INFO'},
-            f"{len(result['images'])} textures packed; {len(result['missing'])} unresolved materials; {errors} errors. Use Material Preview to view textures."+problem_summary(report))
+            f"{len(result['images'])} textures packed; {len(result['missing'])} unresolved materials; {errors} errors. Use Material Preview to view textures."+problem_summary(report)+' '+root.get('mw4_terrain_texture_status',''))
         return {'FINISHED'}
 
 
