@@ -2,7 +2,7 @@
 bl_info = {
     'name': 'MechWarrior 4 Animation Tools',
     'author': 'MW4 Mercenaries Decompilation Project',
-    'version': (0, 17, 0),
+    'version': (0, 18, 0),
     'blender': (5, 1, 0),
     'location': 'File > Import/Export; 3D View > Sidebar > MW4',
     'description': 'Import MW4 asset hierarchies and ERFs; edit/export geometry and MW4ANIM Actions',
@@ -342,7 +342,7 @@ class MW4ANIM_PT_tools(bpy.types.Panel):
         layout.operator(MW4ANIM_OT_import.bl_idname,text='Import raw channels (diagnostic)')
         root = clip_root(context.active_object)
         box = layout.box()
-        box.label(text='Textures · R17')
+        box.label(text='Textures · R18')
         box.operator(textures.MW4ANIM_OT_textures.bl_idname, text='Load / Reload Textures from MW4')
         box.operator(textures.MW4ANIM_OT_material_preview.bl_idname)
         if root:
@@ -358,7 +358,7 @@ class MW4ANIM_PT_tools(bpy.types.Panel):
             if 'mw4_geometry_count' in root:
                 layout.label(text=f"{root['mw4_geometry_count']} ERF resources collected")
             box = layout.box()
-            box.label(text='Animations · R17')
+            box.label(text='Animations · R18')
             available = len(animation_ui.actions_for(root))
             box.label(text=f'{available} compatible animations available')
             if 'mw4_animation_discovered' in root:
