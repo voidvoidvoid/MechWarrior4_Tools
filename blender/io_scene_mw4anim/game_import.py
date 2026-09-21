@@ -16,7 +16,8 @@ _model_items = []
 
 
 def model_items(self, context):
-    return _model_items
+    kind=getattr(self,'resource_type','CONTENTS')
+    return [item for item in _model_items if _model_rows[int(item[0])]['name'].lower().endswith('.contents' if kind=='CONTENTS' else '.erf')]
 
 
 def preferences(context):
@@ -59,14 +60,15 @@ class MW4ANIM_OT_game_directory(bpy.types.Operator):
                 bpy.path.abspath(prefs.key_source) if prefs and prefs.key_source else '',
                 lambda i, n, path: wm.progress_update(100*i/max(1,n)))
             rows = sorted(catalog.models(), key=lambda r:(r['name'].casefold(),r['archive']))
-            if not rows: raise archives.Error('No mech .contents resources found in readable archives')
+            if not rows: raise archives.Error('No .contents or .erf resources found in readable archives')
             _catalog = catalog; _model_rows = rows
             _model_items = [(str(i), r['name'].replace('\\','/') + ' — ' +
-                catalog.archives[r['archive']]['relative'], 'Import this hierarchy and collect its resources')
+                catalog.archives[r['archive']]['relative'], 'Import this resource and collect its dependencies', i)
                 for i, r in enumerate(rows)]
             if prefs: prefs.game_directory = str(catalog.root)
-            selected = '0'
-            bpy.ops.import_scene.mw4_game_model('INVOKE_DEFAULT', model=selected, import_animations=True)
+            selected = next((str(i) for i,r in enumerate(rows) if r['name'].lower().endswith('.contents')), '0')
+            kind = 'CONTENTS' if rows[int(selected)]['name'].lower().endswith('.contents') else 'ERF'
+            bpy.ops.import_scene.mw4_game_model('INVOKE_DEFAULT', resource_type=kind, model=selected, import_animations=True)
         except (OSError, ValueError, RuntimeError) as exc:
             self.report({'ERROR'}, str(exc)); return {'CANCELLED'}
         finally:
@@ -81,6 +83,8 @@ def import_model(catalog, row, context, import_animations=True, fps=30):
 
 
 def import_resource_files(files, report, context, import_animations=True, fps=30, game_directory=''):
+    if report.get('asset_mode') == 'standalone_erf':
+        import_animations = False
     # Keep a portable bundle even if unsupported rig/clip formats are encountered.
     # It preserves original resources for subsequent mesh/texture attachment.
     root_name = archives.normalized(report['source']['name'])
@@ -100,8 +104,12 @@ def import_resource_files(files, report, context, import_animations=True, fps=30
                     if match and match.group(1) == root_name: z.writestr(name, data)
             try:
                 # Validate before creating Blender data.
-                hierarchy.load_hierarchy(hp)
-                obj = rig.build_armature(hp, context)
+                if report.get('asset_mode') == 'standalone_erf':
+                    from . import assets
+                    obj = rig.build_from_info(assets.erf_hierarchy(root_name), context)
+                else:
+                    hierarchy.load_hierarchy(hp)
+                    obj = rig.build_armature(hp, context)
                 obj['mw4_game_directory'] = game_directory
                 obj['mw4_archive_source'] = json.dumps(report['source'])
             except (ValueError, OSError, RuntimeError) as exc:
@@ -175,6 +183,14 @@ class MW4ANIM_OT_game_model(bpy.types.Operator):
     bl_idname = 'import_scene.mw4_game_model'
     bl_label = 'Import MW4 Model Resources'
     bl_options = {'REGISTER', 'UNDO'}
+    def reset_model(self, context):
+        items=model_items(self,context)
+        if items:self.model=items[0][0]
+
+    resource_type: bpy.props.EnumProperty(name='Resource type',items=[
+        ('CONTENTS','Model hierarchies (.contents)','Assembled assets using supported hierarchy records'),
+        ('ERF','Geometry resources (.erf)','Standalone geometry; no recovered moving-part hierarchy')],
+        default='CONTENTS',update=reset_model)
     model: bpy.props.EnumProperty(name='Model / source archive', items=model_items)
     import_animations: bpy.props.BoolProperty(name='Import animation Actions', default=True)
     fps: bpy.props.FloatProperty(name='Timeline FPS', default=30, min=1, max=240)
@@ -185,16 +201,18 @@ class MW4ANIM_OT_game_model(bpy.types.Operator):
         return context.window_manager.invoke_props_dialog(self, width=650)
 
     def draw(self, context):
+        self.layout.prop(self, 'resource_type')
         self.layout.prop(self, 'model')
-        self.layout.prop(self, 'import_animations')
-        self.layout.prop(self, 'fps')
-        self.layout.label(text='Loads the armature, animation clips, and supported ERF meshes.')
+        if self.resource_type=='CONTENTS':
+            self.layout.prop(self, 'import_animations')
+            self.layout.prop(self, 'fps')
+        self.layout.label(text='Contents: assembled hierarchy. ERF: standalone geometry, no moving-part hierarchy.')
         self.layout.label(text='Highest-detail intact parts; texture images loaded and packed automatically.')
         if _catalog and _catalog.warnings:
             self.layout.label(text=f'{len(_catalog.warnings)} unreadable archives; details will be in the report.', icon='ERROR')
 
     def execute(self, context):
-        if _catalog is None or not self.model:
+        if _catalog is None or not self.model or self.model not in {item[0] for item in model_items(self,context)}:
             self.report({'ERROR'}, 'Scan the game directory first');return {'CANCELLED'}
         try:
             obj, report = import_model(_catalog, _model_rows[int(self.model)], context,
